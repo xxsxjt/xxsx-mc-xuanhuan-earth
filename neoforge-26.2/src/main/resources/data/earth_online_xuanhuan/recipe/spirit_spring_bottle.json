@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "minecraft:glass_bottle",
+    "minecraft:water_bucket",
+    "earth_online_xuanhuan:spirit_crystal_shard"
+  ],
+  "result": {
+    "id": "earth_online_xuanhuan:spirit_spring_bottle"
+  }
+}

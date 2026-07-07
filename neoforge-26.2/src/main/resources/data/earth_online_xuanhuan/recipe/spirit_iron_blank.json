@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "minecraft:iron_ingot",
+    "earth_online_xuanhuan:spirit_crystal_shard",
+    "earth_online_xuanhuan:spirit_spring_bottle"
+  ],
+  "result": {
+    "id": "earth_online_xuanhuan:spirit_iron_blank"
+  }
+}

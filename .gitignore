@@ -1,0 +1,14 @@
+.gradle/
+build/
+run/
+runs/
+out/
+.vscode/
+*.iml
+tmp/
+*.log
+*.tmp
+*.bak
+*.jar
+!gradle/wrapper/gradle-wrapper.jar
+!**/gradle/wrapper/gradle-wrapper.jar

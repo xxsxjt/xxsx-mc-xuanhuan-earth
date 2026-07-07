@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "#earth_on_minecraft:spiritual_mineral_substrates",
+    "minecraft:ink_sac",
+    "minecraft:redstone"
+  ],
+  "result": {
+    "id": "earth_online_xuanhuan:cinnabar_spirit_ink",
+    "count": 3
+  }
+}

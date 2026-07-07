@@ -1,0 +1,44 @@
+modLoader="javafml"
+loaderVersion="[3,)"
+license="All Rights Reserved"
+
+[[mods]]
+modId="earth_online_xuanhuan"
+version="0.1.1"
+displayName="地球 Online：玄幻"
+description='''
+In-development beta for Minecraft 26.2 + NeoForge 26.2.0.7-beta.
+This independent branch adds a xuanhuan layer over a realistic Earth baseline:
+spiritual veins, spirit springs, talismans, alchemy vessels and formation cores.
+The first version is intentionally small and stable; worldgen, GUI containers and
+optional Earth Online integration will be expanded after runtime testing.
+'''
+authors="xxsx"
+
+[[dependencies.earth_online_xuanhuan]]
+modId="neoforge"
+type="required"
+versionRange="[26.2.0.7-beta,)"
+ordering="NONE"
+side="BOTH"
+
+[[dependencies.earth_online_xuanhuan]]
+modId="minecraft"
+type="required"
+versionRange="[26.2]"
+ordering="NONE"
+side="BOTH"
+
+[[dependencies.earth_online_xuanhuan]]
+modId="earth_on_minecraft"
+type="optional"
+versionRange="[0.1.0,)"
+ordering="AFTER"
+side="BOTH"
+
+[[dependencies.earth_online_xuanhuan]]
+modId="earth_human"
+type="optional"
+versionRange="[0.1.1,)"
+ordering="AFTER"
+side="BOTH"

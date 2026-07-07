@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "#earth_on_minecraft:arcana_geology_catalysts",
+    "minecraft:amethyst_shard",
+    "minecraft:glowstone_dust"
+  ],
+  "result": {
+    "id": "earth_online_xuanhuan:spirit_crystal_shard",
+    "count": 3
+  }
+}

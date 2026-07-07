@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "earth_online_xuanhuan:talisman_paper",
+    "earth_online_xuanhuan:cinnabar_spirit_ink",
+    "earth_online_xuanhuan:spirit_crystal_shard"
+  ],
+  "result": {
+    "id": "earth_online_xuanhuan:basic_talisman"
+  }
+}

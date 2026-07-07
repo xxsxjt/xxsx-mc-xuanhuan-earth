@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "PIP",
+    " C ",
+    "W W"
+  ],
+  "key": {
+    "P": "earth_online_xuanhuan:talisman_paper",
+    "I": "earth_online_xuanhuan:cinnabar_spirit_ink",
+    "C": "minecraft:crafting_table",
+    "W": "minecraft:oak_planks"
+  },
+  "result": {
+    "id": "earth_online_xuanhuan:talisman_table"
+  }
+}
