@@ -4,7 +4,7 @@
   "ingredients": [
     "minecraft:paper",
     "minecraft:gold_nugget",
-    "earth_online_xuanhuan:cinnabar_spirit_ink"
+    "minecraft:string"
   ],
   "result": {
     "id": "earth_online_xuanhuan:talisman_paper",

@@ -9,7 +9,7 @@
   "key": {
     "S": "minecraft:deepslate",
     "C": "minecraft:copper_ingot",
-    "I": "minecraft:iron_ingot",
+    "I": "earth_online_xuanhuan:spirit_iron_blank",
     "F": "minecraft:furnace"
   },
   "result": {

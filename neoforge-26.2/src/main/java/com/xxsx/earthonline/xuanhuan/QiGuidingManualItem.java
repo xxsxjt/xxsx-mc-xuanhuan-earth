@@ -2,6 +2,7 @@ package com.xxsx.earthonline.xuanhuan;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
@@ -20,6 +21,10 @@ public class QiGuidingManualItem extends Item {
 
     @Override
     public InteractionResult use(Level level, Player player, InteractionHand hand) {
+        if (level.isClientSide()) {
+            openClientHandbook();
+            return InteractionResult.SUCCESS;
+        }
         if (!level.isClientSide()) {
             ArcanaChunkField.Reading reading = Spirituality.reading(level, player.blockPosition());
             boolean learned = ArcanaPower.learnQiGuiding(player);
@@ -37,10 +42,12 @@ public class QiGuidingManualItem extends Item {
             }
 
             double restored = ArcanaPower.absorbAmbientQi(player, reading.value());
-            if (restored > 0.0D) {
-                Spirituality.consume(level, player.blockPosition(), restored);
-                ArcanaPower.startQiMeditationCooldown(player, level);
-            }
+            Spirituality.consume(level, player.blockPosition(), Math.max(1.0D, restored));
+            ArcanaPower.startQiMeditationCooldown(player, level);
+            ArcanaPower.recordAction(player, level, "cultivation_qi_guiding");
+            EarthHumanCompat.RecoveryReport report = player instanceof ServerPlayer serverPlayer
+                    ? EarthHumanCompat.recoverCore(serverPlayer, 1.2D + restored * 0.03D, 0.08D + restored * 0.004D)
+                    : new EarthHumanCompat.RecoveryReport(0.0D, 0.0D);
             ArcanaChunkField.Reading after = Spirituality.reading(level, player.blockPosition());
             player.sendSystemMessage(Component.translatable(learned
                     ? "message.earth_online_xuanhuan.qi_manual.learned"
@@ -52,6 +59,11 @@ public class QiGuidingManualItem extends Item {
             player.sendSystemMessage(Component.translatable("message.earth_online_xuanhuan.qi_manual.field",
                     after.mainSource(),
                     ArcanaPower.format(after.depletion())).withStyle(ChatFormatting.DARK_AQUA));
+            if (report.changed()) {
+                player.sendSystemMessage(Component.translatable("message.earth_online_xuanhuan.human_recovery",
+                        ArcanaPower.format(report.fatigueReduced()),
+                        ArcanaPower.format(report.bodyHealed())).withStyle(ChatFormatting.GREEN));
+            }
             player.sendSystemMessage(Component.translatable("message.earth_online_xuanhuan.arcana.status",
                     ArcanaPower.format(ArcanaPower.getCurrentMana(player)),
                     ArcanaPower.format(ArcanaPower.getMaxMana(player)),
@@ -65,5 +77,14 @@ public class QiGuidingManualItem extends Item {
     public void appendHoverText(ItemStack stack, TooltipContext context, TooltipDisplay display, Consumer<Component> lines, TooltipFlag flag) {
         lines.accept(Component.translatable("tooltip.earth_online_xuanhuan.qi_guiding_manual").withStyle(ChatFormatting.GOLD));
         lines.accept(Component.translatable("tooltip.earth_online_xuanhuan.qi_guiding_manual.use").withStyle(ChatFormatting.GRAY));
+    }
+
+    private static void openClientHandbook() {
+        try {
+            Class.forName("com.xxsx.earthonline.xuanhuan.client.EarthOnlineXuanhuanClient")
+                    .getMethod("openHandbook")
+                    .invoke(null);
+        } catch (ReflectiveOperationException ignored) {
+        }
     }
 }

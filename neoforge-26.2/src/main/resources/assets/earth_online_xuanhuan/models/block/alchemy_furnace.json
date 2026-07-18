@@ -3,10 +3,10 @@
   "textures": {
     "particle": "earth_online_xuanhuan:block/alchemy_furnace_front",
     "down": "minecraft:block/deepslate_tiles",
-    "up": "minecraft:block/blast_furnace_top",
+    "up": "earth_online_xuanhuan:block/alchemy_furnace_top",
     "north": "earth_online_xuanhuan:block/alchemy_furnace_front",
-    "south": "minecraft:block/blast_furnace_side",
-    "west": "minecraft:block/blast_furnace_side",
-    "east": "minecraft:block/blast_furnace_side"
+    "south": "earth_online_xuanhuan:block/alchemy_furnace_side",
+    "west": "earth_online_xuanhuan:block/alchemy_furnace_side",
+    "east": "earth_online_xuanhuan:block/alchemy_furnace_side"
   }
 }

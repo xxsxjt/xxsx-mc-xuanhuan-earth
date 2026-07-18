@@ -1,52 +1,137 @@
 package com.xxsx.earthonline.xuanhuan;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.saveddata.SavedData;
+import net.minecraft.world.level.saveddata.SavedDataType;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
-public final class ArcanaChunkField {
+public final class ArcanaChunkField extends SavedData {
     private static final long REFRESH_INTERVAL_TICKS = 600L;
     private static final double MAX_DEPLETION = 45.0D;
     private static final double DEPLETION_RECOVERY_PER_TICK = 0.003D;
     private static final int SCAN_RADIUS_XZ = 8;
     private static final int SCAN_RADIUS_Y = 5;
+    private static final int MAX_SOURCE_CACHE_ENTRIES = 256;
 
-    private static final Map<ResourceKey<Level>, Map<Long, FieldState>> CACHE = new HashMap<>();
+    private static final Codec<ArcanaChunkField> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+            Codec.unboundedMap(Codec.STRING, DepletionState.CODEC)
+                    .optionalFieldOf("chunks", Map.<String, DepletionState>of())
+                    .forGetter(data -> data.depletedChunks)
+    ).apply(instance, ArcanaChunkField::new));
+    private static final SavedDataType<ArcanaChunkField> TYPE = new SavedDataType<>(
+            EarthOnlineXuanhuan.id("arcana_chunk_field"), ArcanaChunkField::new, CODEC);
+
+    private final Map<String, DepletionState> depletedChunks = new HashMap<>();
+    private final Map<String, CachedSources> sourceCache = new LinkedHashMap<>(64, 0.75F, true) {
+        @Override
+        protected boolean removeEldestEntry(Map.Entry<String, CachedSources> eldest) {
+            return size() > MAX_SOURCE_CACHE_ENTRIES;
+        }
+    };
 
     private ArcanaChunkField() {
     }
 
+    private ArcanaChunkField(Map<String, DepletionState> states) {
+        states.forEach((key, state) -> {
+            double depletion = clamp(state.depletion(), 0.0D, MAX_DEPLETION);
+            if (depletion > 0.0D) {
+                depletedChunks.put(key, new DepletionState(depletion, state.lastUpdate()));
+            }
+        });
+    }
+
     public static Reading read(Level level, BlockPos pos) {
-        synchronized (CACHE) {
-            FieldState state = state(level, pos);
-            state.refresh(level, pos);
-            return state.reading();
+        if (level instanceof ServerLevel serverLevel) {
+            return data(serverLevel).readAt(serverLevel, pos);
         }
+        return buildReading(level, pos, scanSources(level, pos), 0.0D);
     }
 
     public static void consume(Level level, BlockPos pos, double restoredMana) {
-        if (restoredMana <= 0.0D) {
+        if (restoredMana <= 0.0D || !(level instanceof ServerLevel serverLevel)) {
             return;
         }
-        synchronized (CACHE) {
-            FieldState state = state(level, pos);
-            state.refresh(level, pos);
-            state.depletion = clamp(state.depletion + Math.max(0.5D, restoredMana * 0.35D), 0.0D, MAX_DEPLETION);
-            state.lastUpdate = level.getGameTime();
-        }
+        data(serverLevel).consumeAt(serverLevel, pos, restoredMana);
     }
 
-    private static FieldState state(Level level, BlockPos pos) {
-        ChunkPos chunk = ChunkPos.containing(pos);
-        Map<Long, FieldState> dimension = CACHE.computeIfAbsent(level.dimension(), key -> new HashMap<>());
-        return dimension.computeIfAbsent(chunk.pack(), key -> new FieldState(level, pos, chunk));
+    private static ArcanaChunkField data(ServerLevel level) {
+        return level.getServer().getDataStorage().computeIfAbsent(TYPE);
+    }
+
+    private Reading readAt(ServerLevel level, BlockPos pos) {
+        String key = chunkKey(level, pos);
+        double depletion = currentDepletion(key, level.getGameTime());
+        SourceScan sources = cachedSources(level, pos, key);
+        return buildReading(level, pos, sources, depletion);
+    }
+
+    private void consumeAt(ServerLevel level, BlockPos pos, double restoredMana) {
+        String key = chunkKey(level, pos);
+        long now = level.getGameTime();
+        double current = currentDepletion(key, now);
+        double added = Math.max(0.5D, restoredMana * 0.35D);
+        double updated = clamp(current + added, 0.0D, MAX_DEPLETION);
+        depletedChunks.put(key, new DepletionState(updated, now));
+        setDirty();
+    }
+
+    private double currentDepletion(String key, long now) {
+        DepletionState state = depletedChunks.get(key);
+        if (state == null) {
+            return 0.0D;
+        }
+        if (now < state.lastUpdate()) {
+            depletedChunks.put(key, new DepletionState(state.depletion(), now));
+            setDirty();
+            return state.depletion();
+        }
+        double recovered = clamp(
+                state.depletion() - (now - state.lastUpdate()) * DEPLETION_RECOVERY_PER_TICK,
+                0.0D,
+                MAX_DEPLETION);
+        if (recovered <= 0.0D) {
+            depletedChunks.remove(key);
+            setDirty();
+        }
+        return recovered;
+    }
+
+    private SourceScan cachedSources(ServerLevel level, BlockPos pos, String key) {
+        long now = level.getGameTime();
+        CachedSources cached = sourceCache.get(key);
+        if (cached == null
+                || now < cached.lastRefresh()
+                || now - cached.lastRefresh() >= REFRESH_INTERVAL_TICKS
+                || Math.abs(pos.getY() - cached.anchorY()) > SCAN_RADIUS_Y) {
+            SourceScan scan = scanSources(level, pos);
+            sourceCache.put(key, new CachedSources(scan, now, pos.getY()));
+            return scan;
+        }
+        return cached.sources();
+    }
+
+    private static Reading buildReading(Level level, BlockPos pos, SourceScan scan, double depletion) {
+        int base = naturalBase(level, pos, ChunkPos.containing(pos));
+        int value = clamp((int) Math.round(
+                base + scan.vein() + scan.spring() + scan.flora() + scan.structure() - depletion), 0, 100);
+        String sourceKey = depletion >= 28.0D && value < 35
+                ? "spirituality.earth_online_xuanhuan.source.depleted"
+                : scan.mainSourceKey();
+        return new Reading(value, depletion, sourceKey);
+    }
+
+    private static String chunkKey(Level level, BlockPos pos) {
+        return level.dimension().identifier() + "|" + ChunkPos.containing(pos).pack();
     }
 
     private static int naturalBase(Level level, BlockPos pos, ChunkPos chunk) {
@@ -102,31 +187,33 @@ public final class ArcanaChunkField {
             } else if (block == EarthOnlineXuanhuan.SPIRIT_SOIL.get()) {
                 flora = Math.min(20, flora + 5);
             } else if (block == EarthOnlineXuanhuan.SPIRIT_ARRAY_CORE.get()) {
-                structure = Math.min(28, structure + 16);
+                structure = Math.min(36, structure + (XuanhuanStructures.isFormalSpiritArray(level, sample) ? 28 : 12));
+            } else if (block == EarthOnlineXuanhuan.MEDITATION_CUSHION.get()) {
+                structure = Math.min(30, structure + 8);
             } else if (block == EarthOnlineXuanhuan.ALCHEMY_FURNACE.get()
                     || block == EarthOnlineXuanhuan.TALISMAN_TABLE.get()) {
                 structure = Math.min(28, structure + 4);
             }
         }
 
-        Component source = Component.translatable("spirituality.earth_online_xuanhuan.source.natural");
+        String sourceKey = "spirituality.earth_online_xuanhuan.source.natural";
         int strongest = 0;
         if (vein > strongest) {
             strongest = vein;
-            source = Component.translatable("spirituality.earth_online_xuanhuan.source.vein");
+            sourceKey = "spirituality.earth_online_xuanhuan.source.vein";
         }
         if (spring > strongest) {
             strongest = spring;
-            source = Component.translatable("spirituality.earth_online_xuanhuan.source.spring");
+            sourceKey = "spirituality.earth_online_xuanhuan.source.spring";
         }
         if (structure > strongest) {
             strongest = structure;
-            source = Component.translatable("spirituality.earth_online_xuanhuan.source.array");
+            sourceKey = "spirituality.earth_online_xuanhuan.source.array";
         }
         if (flora > strongest) {
-            source = Component.translatable("spirituality.earth_online_xuanhuan.source.flora");
+            sourceKey = "spirituality.earth_online_xuanhuan.source.flora";
         }
-        return new SourceScan(vein, spring, flora, structure, source);
+        return new SourceScan(vein, spring, flora, structure, sourceKey);
     }
 
     private static long mix(long value) {
@@ -146,59 +233,22 @@ public final class ArcanaChunkField {
         return Math.max(min, Math.min(max, value));
     }
 
-    public record Reading(int value, double depletion, Component mainSource) {
+    public record Reading(int value, double depletion, String mainSourceKey) {
+        public net.minecraft.network.chat.Component mainSource() {
+            return net.minecraft.network.chat.Component.translatable(mainSourceKey);
+        }
     }
 
-    private record SourceScan(int vein, int spring, int flora, int structure, Component mainSource) {
+    private record SourceScan(int vein, int spring, int flora, int structure, String mainSourceKey) {
     }
 
-    private static final class FieldState {
-        private int base;
-        private int vein;
-        private int spring;
-        private int flora;
-        private int structure;
-        private double depletion;
-        private long lastRefresh;
-        private long lastUpdate;
-        private Component mainSource = Component.translatable("spirituality.earth_online_xuanhuan.source.natural");
+    private record CachedSources(SourceScan sources, long lastRefresh, int anchorY) {
+    }
 
-        private FieldState(Level level, BlockPos pos, ChunkPos chunk) {
-            this.base = naturalBase(level, pos, chunk);
-            this.lastRefresh = Long.MIN_VALUE;
-            this.lastUpdate = level.getGameTime();
-        }
-
-        private void refresh(Level level, BlockPos pos) {
-            long now = level.getGameTime();
-            recover(now - lastUpdate);
-            if (lastRefresh == Long.MIN_VALUE || now - lastRefresh >= REFRESH_INTERVAL_TICKS) {
-                ChunkPos chunk = ChunkPos.containing(pos);
-                base = naturalBase(level, pos, chunk);
-                SourceScan scan = scanSources(level, pos);
-                vein = scan.vein();
-                spring = scan.spring();
-                flora = scan.flora();
-                structure = scan.structure();
-                mainSource = scan.mainSource();
-                lastRefresh = now;
-            }
-            lastUpdate = now;
-        }
-
-        private void recover(long elapsedTicks) {
-            if (elapsedTicks <= 0L || depletion <= 0.0D) {
-                return;
-            }
-            depletion = clamp(depletion - elapsedTicks * DEPLETION_RECOVERY_PER_TICK, 0.0D, MAX_DEPLETION);
-        }
-
-        private Reading reading() {
-            int value = clamp((int) Math.round(base + vein + spring + flora + structure - depletion), 0, 100);
-            Component source = depletion >= 28.0D && value < 35
-                    ? Component.translatable("spirituality.earth_online_xuanhuan.source.depleted")
-                    : mainSource;
-            return new Reading(value, depletion, source);
-        }
+    private record DepletionState(double depletion, long lastUpdate) {
+        private static final Codec<DepletionState> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+                Codec.DOUBLE.fieldOf("depletion").forGetter(DepletionState::depletion),
+                Codec.LONG.fieldOf("last_update").forGetter(DepletionState::lastUpdate)
+        ).apply(instance, DepletionState::new));
     }
 }

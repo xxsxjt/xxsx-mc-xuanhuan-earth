@@ -1,6 +1,6 @@
 # Texture Prompt Notes
 
-First polished block-texture pass for `地球 Online：玄幻` used `gpt-image-2` through the local imagegen CLI and the DPAPI-encrypted image key. Raw generated images are kept under ignored `tmp/imagegen/`; final downscaled PNGs are packaged under:
+First polished block-texture pass for `Xuanhuan Earth on Minecraft / 玄幻地球 on Minecraft` used `gpt-image-2` through the local imagegen CLI and the DPAPI-encrypted image key. Raw generated images are kept under ignored `tmp/imagegen/`; final downscaled PNGs are packaged under:
 
 ```text
 neoforge-26.2/src/main/resources/assets/earth_online_xuanhuan/textures/block/

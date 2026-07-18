@@ -25,10 +25,13 @@ public final class ArcanaPower {
     public static final String BODY_TEMPERING_LEVEL = "earth_online_arcana.body_tempering_level";
     public static final String FETAL_BREATH_LEVEL = "earth_online_arcana.fetal_breath_level";
     public static final String QI_MEDITATION_COOLDOWN_UNTIL = "earth_online_arcana.qi_meditation_cooldown_until";
+    public static final String CULTIVATION_FOCUS = "earth_online_arcana.cultivation_focus";
+    public static final String XUANHUAN_LAST_ACTION = "earth_online_arcana.xuanhuan_last_action";
+    public static final String XUANHUAN_LAST_ACTION_TICK = "earth_online_arcana.xuanhuan_last_action_tick";
 
     private static final double DEFAULT_BASE_MANA = 20.0D;
     private static final double MAX_REASONABLE_MANA = 1_000_000.0D;
-    private static final long QI_MEDITATION_COOLDOWN_TICKS = 20L * 18L;
+    public static final int QI_MEDITATION_COOLDOWN_TICKS = 20 * 18;
 
     private ArcanaPower() {
     }
@@ -62,6 +65,16 @@ public final class ArcanaPower {
 
     public static void setCurrentMana(Player player, double value) {
         data(player).putDouble(CURRENT_MANA, clamp(value, 0.0D, getMaxMana(player)));
+    }
+
+    public static boolean trySpendMana(Player player, double amount) {
+        double cost = Math.max(0.0D, amount);
+        double current = getCurrentMana(player);
+        if (current + 0.0001D < cost) {
+            return false;
+        }
+        setCurrentMana(player, current - cost);
+        return true;
     }
 
     public static int getCultivationLevel(Player player) {
@@ -98,6 +111,29 @@ public final class ArcanaPower {
 
     public static double getBodyTemperingBonus(Player player) {
         return Math.max(0.0D, data(player).getDoubleOr(BODY_TEMPERING_BONUS, 0.0D));
+    }
+
+    public static CultivationFocus getCultivationFocus(Player player) {
+        CultivationFocus focus = CultivationFocus.byId(data(player).getIntOr(CULTIVATION_FOCUS, 0));
+        return focus.isUnlocked(player) ? focus : CultivationFocus.CIRCULATION;
+    }
+
+    public static boolean setCultivationFocus(Player player, CultivationFocus focus) {
+        if (!focus.isUnlocked(player) || getCultivationFocus(player) == focus) {
+            return false;
+        }
+        data(player).putInt(CULTIVATION_FOCUS, focus.id());
+        return true;
+    }
+
+    public static int getCultivationFocusMask(Player player) {
+        int mask = 0;
+        for (CultivationFocus focus : CultivationFocus.values()) {
+            if (focus.isUnlocked(player)) {
+                mask |= 1 << focus.id();
+            }
+        }
+        return mask;
     }
 
     public static boolean learnQiGuiding(Player player) {
@@ -171,6 +207,12 @@ public final class ArcanaPower {
 
     public static void startQiMeditationCooldown(Player player, Level level) {
         data(player).putLong(QI_MEDITATION_COOLDOWN_UNTIL, level.getGameTime() + QI_MEDITATION_COOLDOWN_TICKS);
+    }
+
+    public static void recordAction(Player player, Level level, String action) {
+        CompoundTag tag = data(player);
+        tag.putString(XUANHUAN_LAST_ACTION, action);
+        tag.putLong(XUANHUAN_LAST_ACTION_TICK, level.getGameTime());
     }
 
     public static String format(double value) {

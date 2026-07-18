@@ -4,14 +4,24 @@ license="All Rights Reserved"
 
 [[mods]]
 modId="earth_online_xuanhuan"
-version="0.1.1"
-displayName="地球 Online：玄幻"
+version="0.7.0-alpha.1"
+displayName="Xuanhuan Earth on Minecraft / 玄幻地球 on Minecraft"
 description='''
 In-development beta for Minecraft 26.2 + NeoForge 26.2.0.7-beta.
-This independent branch adds a xuanhuan layer over a realistic Earth baseline:
+Xuanhuan Earth on Minecraft is independently playable and adds a xuanhuan world layer:
 spiritual veins, spirit springs, talismans, alchemy vessels and formation cores.
-The first version is intentionally small and stable; worldgen, GUI containers and
-optional Earth Online integration will be expanded after runtime testing.
+This build implements the first playable cultivation loop: handbook screen,
+field-aware alchemy/talisman/array stations, JEI categories, consumable
+starter outputs, vanilla material routes, and optional Earth Human API-based recovery links.
+The server-synced cultivation panel now opens from a configurable key anywhere.
+Free practice is always available, while the optional cushion adds full efficiency,
+continuous cycles, directional posture, a four-phase HUD and stronger recovery.
+Technique focuses retain distinct body, breath and fasting outcomes.
+The ecosystem slice now includes five independent contractable spirit beasts,
+three persistent companion modes, affinity-based sealing, dedicated models and drops.
+Three cultivation resident roles use real merchant containers, while wandering markets,
+spirit spring villages and sect frontier outposts generate through isolated features and
+deferred settlement anchors without replacing vanilla villages or mutating vanilla mobs.
 '''
 authors="xxsx"
 

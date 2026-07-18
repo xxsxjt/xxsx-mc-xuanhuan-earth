@@ -31,14 +31,19 @@ public class XuanhuanBlock extends Block {
     }
 
     private InteractionResult describe(Level level, BlockPos pos, Player player) {
-        if (!level.isClientSide()) {
-            ArcanaChunkField.Reading reading = Spirituality.reading(level, pos);
-            player.sendSystemMessage(Component.translatable(messageKey, Spirituality.gradeName(reading.value()), reading.value())
-                    .withStyle(ChatFormatting.LIGHT_PURPLE));
-            player.sendSystemMessage(Component.translatable("message.earth_online_xuanhuan.block.field",
-                    reading.mainSource(),
-                    ArcanaPower.format(reading.depletion())).withStyle(ChatFormatting.DARK_AQUA));
+        if (level.isClientSide()) {
+            return InteractionResult.SUCCESS;
         }
-        return level.isClientSide() ? InteractionResult.SUCCESS : InteractionResult.SUCCESS_SERVER;
+        var arrayCenter = XuanhuanStructures.findFormalSpiritArrayCenter(level, pos);
+        if (arrayCenter.isPresent()) {
+            return XuanhuanMachineBlock.openMachineAt(level, arrayCenter.get(), player);
+        }
+        ArcanaChunkField.Reading reading = Spirituality.reading(level, pos);
+        player.sendSystemMessage(Component.translatable(messageKey, Spirituality.gradeName(reading.value()), reading.value())
+                .withStyle(ChatFormatting.LIGHT_PURPLE));
+        player.sendSystemMessage(Component.translatable("message.earth_online_xuanhuan.block.field",
+                reading.mainSource(),
+                ArcanaPower.format(reading.depletion())).withStyle(ChatFormatting.DARK_AQUA));
+        return InteractionResult.SUCCESS_SERVER;
     }
 }
