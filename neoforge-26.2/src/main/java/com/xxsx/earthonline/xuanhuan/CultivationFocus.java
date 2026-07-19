@@ -20,6 +20,10 @@ public enum CultivationFocus {
         return id;
     }
 
+    public String path() {
+        return path;
+    }
+
     public String titleKey() {
         return "screen.earth_online_xuanhuan.cultivation.focus." + path;
     }

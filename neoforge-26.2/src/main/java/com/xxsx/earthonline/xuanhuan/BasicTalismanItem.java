@@ -30,7 +30,9 @@ public class BasicTalismanItem extends GuidedXuanhuanItem {
                         ArcanaPower.format(ArcanaPower.getMaxMana(player))).withStyle(ChatFormatting.YELLOW));
                 return InteractionResult.SUCCESS_SERVER;
             }
-            ArcanaPower.recordAction(player, level, "combat_basic_talisman");
+            if (player instanceof ServerPlayer serverPlayer) {
+                CultivationNetwork.broadcastVisual(serverPlayer, CultivationVisualAction.TALISMAN);
+            }
             player.addEffect(new MobEffectInstance(MobEffects.STRENGTH, 160, 0, true, false, true));
             player.addEffect(new MobEffectInstance(MobEffects.RESISTANCE, 160, 0, true, false, true));
             EarthHumanCompat.RecoveryReport report = player instanceof ServerPlayer serverPlayer

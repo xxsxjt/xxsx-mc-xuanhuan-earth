@@ -29,6 +29,7 @@ public class CultivationScreen extends Screen {
 
     private final Map<CultivationFocus, Button> focusButtons = new EnumMap<>(CultivationFocus.class);
     private Button primaryActionButton;
+    private Button techniqueButton;
     private int refreshTicks;
 
     public CultivationScreen() {
@@ -41,16 +42,21 @@ public class CultivationScreen extends Screen {
         int left = panelLeft();
         int top = panelTop();
         int buttonWidth = navigationWidth() - 20;
-        int y = top + 43;
+        int y = top + 37;
         for (CultivationFocus focus : CultivationFocus.values()) {
             Button button = addRenderableWidget(Button.builder(Component.translatable(focus.titleKey()),
                             ignored -> EarthOnlineXuanhuanClient.requestCultivationFocus(focus))
-                    .bounds(left + 10, y, buttonWidth, 20)
+                    .bounds(left + 10, y, buttonWidth, 18)
                     .build());
             button.setTooltip(Tooltip.create(Component.translatable(focus.descriptionKey())));
             focusButtons.put(focus, button);
-            y += 24;
+            y += 20;
         }
+        techniqueButton = addRenderableWidget(Button.builder(
+                        Component.translatable("screen.earth_online_xuanhuan.cultivation.skill"),
+                        ignored -> EarthOnlineXuanhuanClient.requestActivateTechnique())
+                .bounds(left + 10, top + panelHeight() - 50, buttonWidth, 18)
+                .build());
         primaryActionButton = addRenderableWidget(Button.builder(
                         Component.translatable("screen.earth_online_xuanhuan.cultivation.practice"),
                         ignored -> performPrimaryAction())
@@ -110,20 +116,32 @@ public class CultivationScreen extends Screen {
         int meridianWidth = Math.min(54, Math.max(42, contentW / 4));
         int meterX = contentX + meridianWidth + 4;
         int meterWidth = Math.max(82, contentW - meridianWidth - 4);
-        int y = top + 54;
+        int y = top + 52;
         drawCompactBar(g, meterX, y, meterWidth,
                 Component.translatable("screen.earth_online_xuanhuan.cultivation.mana"),
                 status.maxMana() <= 0.0D ? 0.0D : status.currentMana() / status.maxMana(),
                 Math.round(status.currentMana()) + " / " + Math.round(status.maxMana()), ACCENT);
-        y += 20;
+        y += 17;
         drawCompactBar(g, meterX, y, meterWidth,
                 Component.translatable("screen.earth_online_xuanhuan.cultivation.field"),
                 status.fieldValue() / 100.0D, status.fieldValue() + " / 100", fieldColor(status.fieldValue()));
-        y += 20;
+        y += 17;
         drawCompactBar(g, meterX, y, meterWidth,
                 Component.translatable("screen.earth_online_xuanhuan.cultivation.depletion"),
                 status.depletion() / 45.0D, Math.round(status.depletion()) + " / 45", 0xFFD6A55B);
-        drawMeridian(g, contentX, top + 55, meridianWidth - 2, 57, status);
+        y += 17;
+        boolean focusUnlocked = status.isUnlocked(focus);
+        drawCompactBar(g, meterX, y, meterWidth,
+                Component.translatable("screen.earth_online_xuanhuan.cultivation.growth"),
+                !focusUnlocked ? 0.0D : status.focusXpNeeded() <= 0
+                        ? 1.0D : status.focusXp() / (double) status.focusXpNeeded(),
+                !focusUnlocked
+                        ? Component.translatable("screen.earth_online_xuanhuan.cultivation.growth.locked").getString()
+                        : status.focusXpNeeded() <= 0
+                        ? "Lv." + status.focusLevel() + " · MAX"
+                        : "Lv." + status.focusLevel() + " · " + status.focusXp() + "/" + status.focusXpNeeded(),
+                0xFF75C7E8);
+        drawMeridian(g, contentX, top + 53, meridianWidth - 2, 72, status);
 
         int stageY = top + h - 39;
         drawStageTrack(g, contentX, stageY, contentW, status);
@@ -185,10 +203,20 @@ public class CultivationScreen extends Screen {
             primaryActionButton.setMessage(Component.translatable(seated
                     ? "screen.earth_online_xuanhuan.cultivation.leave_cushion"
                     : "screen.earth_online_xuanhuan.cultivation.practice"));
-            primaryActionButton.active = seated || status.remainingTicks() <= 0;
+            primaryActionButton.active = seated
+                    || status.isUnlocked(CultivationFocus.CIRCULATION) && status.remainingTicks() <= 0;
             primaryActionButton.setTooltip(Tooltip.create(Component.translatable(seated
                     ? "screen.earth_online_xuanhuan.cultivation.leave_cushion.tooltip"
                     : "screen.earth_online_xuanhuan.cultivation.practice.tooltip")));
+        }
+        if (techniqueButton != null) {
+            int seconds = Math.max(0, (status.skillRemainingTicks() + 19) / 20);
+            techniqueButton.setMessage(seconds > 0
+                    ? Component.translatable("screen.earth_online_xuanhuan.cultivation.skill.cooldown", seconds)
+                    : Component.translatable("screen.earth_online_xuanhuan.cultivation.skill"));
+            techniqueButton.active = status.isUnlocked(selected) && status.skillRemainingTicks() <= 0;
+            techniqueButton.setTooltip(Tooltip.create(Component.translatable(
+                    "screen.earth_online_xuanhuan.cultivation.skill." + selected.path() + ".tooltip")));
         }
     }
 

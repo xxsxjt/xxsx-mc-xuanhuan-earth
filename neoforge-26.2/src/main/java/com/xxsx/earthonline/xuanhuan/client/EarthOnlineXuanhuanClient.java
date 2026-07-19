@@ -13,6 +13,7 @@ import com.xxsx.earthonline.xuanhuan.EarthOnlineXuanhuan;
 import com.xxsx.earthonline.xuanhuan.CultivationActionPayload;
 import com.xxsx.earthonline.xuanhuan.CultivationFocus;
 import com.xxsx.earthonline.xuanhuan.CultivationStatusPayload;
+import com.xxsx.earthonline.xuanhuan.CultivationVisualPayload;
 import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
@@ -36,6 +37,11 @@ public final class EarthOnlineXuanhuanClient {
             InputConstants.Type.KEYSYM,
             GLFW.GLFW_KEY_K,
             CATEGORY);
+    private static final KeyMapping ACTIVATE_TECHNIQUE = new KeyMapping(
+            "key.earth_online_xuanhuan.activate_technique",
+            InputConstants.Type.KEYSYM,
+            GLFW.GLFW_KEY_V,
+            CATEGORY);
     private static CultivationStatusPayload cultivationStatus = CultivationStatusPayload.empty();
     private EarthOnlineXuanhuanClient() {
     }
@@ -48,6 +54,7 @@ public final class EarthOnlineXuanhuanClient {
         modBus.addListener(EarthOnlineXuanhuanClient::registerPayloadHandlers);
         modBus.addListener(EarthOnlineXuanhuanClient::registerKeyMappings);
         NeoForge.EVENT_BUS.addListener(EarthOnlineXuanhuanClient::clientTick);
+        NeoForge.EVENT_BUS.addListener(CultivationPlayerAnimations::renderPlayer);
     }
 
     private static void registerScreens(RegisterMenuScreensEvent event) {
@@ -87,18 +94,27 @@ public final class EarthOnlineXuanhuanClient {
 
     private static void registerPayloadHandlers(RegisterClientPayloadHandlersEvent event) {
         event.register(CultivationStatusPayload.TYPE, EarthOnlineXuanhuanClient::handleCultivationStatus);
+        event.register(CultivationVisualPayload.TYPE, EarthOnlineXuanhuanClient::handleCultivationVisual);
     }
 
     private static void registerKeyMappings(RegisterKeyMappingsEvent event) {
         event.registerCategory(CATEGORY);
         event.register(OPEN_CULTIVATION);
+        event.register(ACTIVATE_TECHNIQUE);
     }
 
     private static void clientTick(ClientTickEvent.Post event) {
+        CultivationPlayerAnimations.tick();
         while (OPEN_CULTIVATION.consumeClick()) {
             Minecraft minecraft = Minecraft.getInstance();
             if (minecraft.player != null && minecraft.getConnection() != null) {
                 requestOpenCultivation();
+            }
+        }
+        while (ACTIVATE_TECHNIQUE.consumeClick()) {
+            Minecraft minecraft = Minecraft.getInstance();
+            if (minecraft.player != null && minecraft.getConnection() != null && minecraft.gui.screen() == null) {
+                requestActivateTechnique();
             }
         }
     }
@@ -110,6 +126,10 @@ public final class EarthOnlineXuanhuanClient {
                 Minecraft.getInstance().gui.setScreen(new CultivationScreen());
             }
         });
+    }
+
+    private static void handleCultivationVisual(CultivationVisualPayload payload, IPayloadContext context) {
+        context.enqueueWork(() -> CultivationPlayerAnimations.start(payload));
     }
 
     public static CultivationStatusPayload cultivationStatus() {
@@ -132,11 +152,18 @@ public final class EarthOnlineXuanhuanClient {
         ClientPacketDistributor.sendToServer(new CultivationActionPayload(CultivationActionPayload.PRACTICE));
     }
 
+    public static void requestActivateTechnique() {
+        ClientPacketDistributor.sendToServer(new CultivationActionPayload(CultivationActionPayload.ACTIVATE_SKILL));
+    }
+
     public static void requestCultivationRefresh() {
         ClientPacketDistributor.sendToServer(new CultivationActionPayload(CultivationActionPayload.REFRESH_STATUS));
     }
 
     public static void openHandbook() {
+        if (Minecraft.getInstance().getConnection() != null) {
+            requestCultivationRefresh();
+        }
         Minecraft.getInstance().gui.setScreen(new XuanhuanHandbookScreen());
     }
 }

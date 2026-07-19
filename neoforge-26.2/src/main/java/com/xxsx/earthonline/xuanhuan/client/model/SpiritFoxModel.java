@@ -28,7 +28,7 @@ public final class SpiritFoxModel extends EntityModel<SpiritFoxRenderState> {
     private final ModelPart tail;
 
     public SpiritFoxModel(ModelPart root) {
-        super(root, RenderTypes::entityTranslucent);
+        super(root, RenderTypes::entityCutout);
         this.head = root.getChild("head");
         this.crest = this.head.getChild("crest");
         this.body = root.getChild("body");
@@ -101,6 +101,19 @@ public final class SpiritFoxModel extends EntityModel<SpiritFoxRenderState> {
         this.backLeftLeg.xRot = Mth.cos(walk * 0.6662F) * 1.05F * speed;
         this.tail.yRot = Mth.sin(age * 0.085F) * (0.24F + state.spiritAffinity * 0.12F);
         this.tail.xRot = 0.42F + Mth.cos(age * 0.07F) * 0.08F;
+        float attack = Mth.sin(state.attackProgress * Mth.PI);
+        this.head.xRot -= attack * 0.55F;
+        this.body.xRot -= attack * 0.12F;
+        this.frontRightLeg.xRot -= attack * 0.42F;
+        this.frontLeftLeg.xRot -= attack * 0.42F;
+        if (state.sitting) {
+            this.body.xRot = 0.18F;
+            this.frontRightLeg.xRot = -0.10F;
+            this.frontLeftLeg.xRot = -0.10F;
+            this.backRightLeg.xRot = -1.08F;
+            this.backLeftLeg.xRot = -1.08F;
+            this.tail.xRot = 1.02F;
+        }
 
         float pulse = 1.0F + Mth.sin(age * 0.18F) * (0.05F + state.spiritAffinity * 0.05F);
         this.crest.xScale = pulse;

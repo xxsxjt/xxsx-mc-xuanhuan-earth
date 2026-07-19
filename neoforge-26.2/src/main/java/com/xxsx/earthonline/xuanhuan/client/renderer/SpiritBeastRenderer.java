@@ -35,6 +35,8 @@ public final class SpiritBeastRenderer<T extends ContractableSpiritBeastEntity,
         state.affinity = entity.getAffinity() / (float) ContractableSpiritBeastEntity.MAX_AFFINITY;
         state.companionMode = entity.getCompanionMode().id();
         state.aggressive = entity.getTarget() != null;
+        state.attackProgress = entity.getAttackAnim(partialTick);
+        state.sitting = entity.isInSittingPose();
     }
 
     @Override

@@ -24,6 +24,8 @@ public final class SpiritFoxRenderer extends MobRenderer<SpiritFoxEntity, Spirit
     public void extractRenderState(SpiritFoxEntity entity, SpiritFoxRenderState state, float partialTick) {
         super.extractRenderState(entity, state, partialTick);
         state.spiritAffinity = entity.getAffinity() / (float) com.xxsx.earthonline.xuanhuan.entity.ContractableSpiritBeastEntity.MAX_AFFINITY;
+        state.attackProgress = entity.getAttackAnim(partialTick);
+        state.sitting = entity.isInSittingPose();
     }
 
     @Override

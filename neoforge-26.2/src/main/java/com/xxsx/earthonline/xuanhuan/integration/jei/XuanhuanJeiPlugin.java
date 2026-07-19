@@ -40,7 +40,7 @@ public class XuanhuanJeiPlugin implements IModPlugin {
         for (XuanhuanMachineBlock.Kind kind : XuanhuanMachineBlock.Kind.values()) {
             registration.addRecipes(recipeTypeFor(kind), XuanhuanMachineBlock.recipesFor(kind));
         }
-        registration.addItemStackInfo(new ItemStack(EarthOnlineXuanhuan.QI_GUIDING_MANUAL.get()),
+        registration.addItemStackInfo(new ItemStack(EarthOnlineXuanhuan.XUANHUAN_HANDBOOK.get()),
                 line("jei.earth_online_xuanhuan.handbook.0", ChatFormatting.GOLD),
                 line("jei.earth_online_xuanhuan.handbook.1", ChatFormatting.WHITE),
                 line("jei.earth_online_xuanhuan.handbook.2", ChatFormatting.AQUA),

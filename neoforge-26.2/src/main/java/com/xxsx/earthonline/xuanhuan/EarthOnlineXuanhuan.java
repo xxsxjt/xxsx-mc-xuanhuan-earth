@@ -151,6 +151,8 @@ public class EarthOnlineXuanhuan {
     public static final DeferredHolder<MenuType<?>, MenuType<XuanhuanMachineMenu>> XUANHUAN_MACHINE_MENU =
             MENUS.register("xuanhuan_machine", () -> IMenuTypeExtension.create(XuanhuanMachineMenu::new));
 
+    public static final DeferredItem<XuanhuanHandbookItem> XUANHUAN_HANDBOOK = item("xuanhuan_handbook",
+            props -> new XuanhuanHandbookItem(props.stacksTo(1)));
     public static final DeferredItem<QiGuidingManualItem> QI_GUIDING_MANUAL = item("qi_guiding_manual",
             props -> new QiGuidingManualItem(props.stacksTo(1)));
     public static final DeferredItem<CultivationManualItem> BIGU_MANUAL = item("bigu_manual",
@@ -207,6 +209,10 @@ public class EarthOnlineXuanhuan {
         modBus.addListener(this::registerEntityAttributes);
         modBus.addListener(this::registerSpawnPlacements);
         NeoForge.EVENT_BUS.addListener(ArcanaEvents::onPlayerClone);
+        NeoForge.EVENT_BUS.addListener(ArcanaPassiveEffects::onPlayerTick);
+        NeoForge.EVENT_BUS.addListener(ArcanaPassiveEffects::onIncomingDamage);
+        NeoForge.EVENT_BUS.addListener(ArcanaPassiveEffects::onFall);
+        NeoForge.EVENT_BUS.addListener(ArcanaPassiveEffects::onBreathe);
         NeoForge.EVENT_BUS.addListener(XuanhuanSettlementCatalog::register);
         modBus.addListener(this::registerCreativeTab);
         if (FMLEnvironment.getDist() == Dist.CLIENT) {

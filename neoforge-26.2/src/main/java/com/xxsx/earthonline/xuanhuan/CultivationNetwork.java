@@ -15,8 +15,9 @@ public final class CultivationNetwork {
     }
 
     public static void registerPayloads(RegisterPayloadHandlersEvent event) {
-        event.registrar("0.4.4")
+        event.registrar("0.7.0-alpha.4")
                 .playToClient(CultivationStatusPayload.TYPE, CultivationStatusPayload.CODEC)
+                .playToClient(CultivationVisualPayload.TYPE, CultivationVisualPayload.CODEC)
                 .playToServer(CultivationActionPayload.TYPE, CultivationActionPayload.CODEC,
                         CultivationNetwork::handleAction);
     }
@@ -27,20 +28,30 @@ public final class CultivationNetwork {
         }
         ArcanaChunkField.Reading reading = Spirituality.reading(level, pos);
         EarthHumanCompat.HumanSnapshot human = EarthHumanCompat.snapshot(player);
+        CultivationFocus focus = ArcanaPower.getCultivationFocus(player);
         PacketDistributor.sendToPlayer(player, new CultivationStatusPayload(
                 ArcanaPower.getCurrentMana(player),
                 ArcanaPower.getMaxMana(player),
                 reading.value(),
                 reading.depletion(),
                 (int) Math.min(Integer.MAX_VALUE, ArcanaPower.getQiMeditationCooldownTicks(player, level)),
-                ArcanaPower.getCultivationFocus(player).id(),
+                focus.id(),
                 ArcanaPower.getCultivationFocusMask(player),
+                ArcanaPower.getFocusLevel(player, focus),
+                ArcanaPower.getFocusXp(player, focus),
+                ArcanaPower.getFocusXpNeeded(player, focus),
+                (int) Math.min(Integer.MAX_VALUE, ArcanaPower.getSkillCooldownTicks(player, level)),
                 human.linked(),
                 human.fatigue(),
                 human.bodyIntegrity(),
                 reading.mainSourceKey(),
                 player.getVehicle() instanceof MeditationSeatEntity,
                 openScreen));
+    }
+
+    public static void broadcastVisual(ServerPlayer player, CultivationVisualAction action) {
+        PacketDistributor.sendToPlayersTrackingEntityAndSelf(player,
+                new CultivationVisualPayload(player.getId(), action.id()));
     }
 
     private static void handleAction(CultivationActionPayload payload, IPayloadContext context) {
@@ -75,6 +86,11 @@ public final class CultivationNetwork {
                 CultivationPractice.perform(level, pos, player,
                         seat == null ? CultivationPractice.Support.FREE : CultivationPractice.Support.CUSHION,
                         false);
+                sync(player, pos, false);
+                return;
+            }
+            if (action == CultivationActionPayload.ACTIVATE_SKILL) {
+                CultivationSkill.activate(level, player);
                 sync(player, pos, false);
                 return;
             }

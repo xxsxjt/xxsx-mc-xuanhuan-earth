@@ -73,6 +73,12 @@ public class MeditationCushionBlock extends Block {
         if (!(level instanceof ServerLevel serverLevel) || !(player instanceof ServerPlayer serverPlayer)) {
             return InteractionResult.SUCCESS_SERVER;
         }
+        if (ArcanaPower.getCultivationLevel(serverPlayer) <= 0) {
+            serverPlayer.sendSystemMessage(Component.translatable(
+                    "message.earth_online_xuanhuan.practice.requires_qi_guiding")
+                    .withStyle(ChatFormatting.RED));
+            return InteractionResult.SUCCESS_SERVER;
+        }
         MeditationSeatEntity seat = findSeat(serverLevel, pos);
         if (seat != null && seat.isVehicle()) {
             if (seat.getFirstPassenger() == serverPlayer) {

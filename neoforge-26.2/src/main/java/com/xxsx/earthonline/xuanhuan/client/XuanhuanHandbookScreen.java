@@ -1,5 +1,7 @@
 package com.xxsx.earthonline.xuanhuan.client;
 
+import com.xxsx.earthonline.xuanhuan.CultivationFocus;
+import com.xxsx.earthonline.xuanhuan.CultivationStatusPayload;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
@@ -184,7 +186,12 @@ public class XuanhuanHandbookScreen extends Screen {
 
     private List<Line> wrap(Page current) {
         List<Line> result = new ArrayList<>();
-        for (Entry entry : current.entries) {
+        List<Entry> entries = new ArrayList<>();
+        if (page == 0) {
+            entries.addAll(liveStatusEntries());
+        }
+        entries.addAll(current.entries);
+        for (Entry entry : entries) {
             if (entry.text.isBlank()) {
                 result.add(new Line(FormattedCharSequence.EMPTY, 0, INK, true));
                 continue;
@@ -194,6 +201,34 @@ public class XuanhuanHandbookScreen extends Screen {
             }
         }
         return result;
+    }
+
+    private List<Entry> liveStatusEntries() {
+        CultivationStatusPayload status = EarthOnlineXuanhuanClient.cultivationStatus();
+        if (!status.isUnlocked(CultivationFocus.CIRCULATION)) {
+            return List.of(
+                    new Entry(Component.translatable(
+                            "screen.earth_online_xuanhuan.handbook.status.locked").getString(), 10, PURPLE),
+                    new Entry(Component.translatable(
+                            "screen.earth_online_xuanhuan.handbook.status.next.learn").getString(), 10, GOLD),
+                    new Entry("", 0, INK));
+        }
+
+        CultivationFocus focus = CultivationFocus.byId(status.focusId());
+        String xp = status.focusXpNeeded() <= 0
+                ? "MAX"
+                : status.focusXp() + "/" + status.focusXpNeeded();
+        int unlocked = Integer.bitCount(status.unlockedMask());
+        String nextKey = unlocked < CultivationFocus.values().length
+                ? "screen.earth_online_xuanhuan.handbook.status.next.unlock"
+                : "screen.earth_online_xuanhuan.handbook.status.next.train";
+        return List.of(
+                new Entry(Component.translatable(
+                        "screen.earth_online_xuanhuan.handbook.status.current",
+                        Component.translatable(focus.titleKey()), status.focusLevel(), xp, unlocked).getString(),
+                        10, GREEN),
+                new Entry(Component.translatable(nextKey).getString(), 10, GOLD),
+                new Entry("", 0, INK));
     }
 
     private int bookWidth() {
@@ -227,7 +262,8 @@ public class XuanhuanHandbookScreen extends Screen {
         if (!Minecraft.getInstance().getLanguageManager().getSelected().toLowerCase(Locale.ROOT).startsWith("zh")) {
             return List.of(
                     page("Start", "1. Cultivation loop", PURPLE,
-                            "Craft the Qi Guiding Manual from dirt, planks, or stone. Right-click it to open this handbook and practice qi recovery.",
+                            "Craft the Xuanhuan Earth Handbook from dirt, planks, or stone. It only explains the route and is never consumed by technique recipes.",
+                            "Craft the separate Qi Guiding Manual from a book, amethyst and redstone. Reading it unlocks circulation; it does not resolve training.",
                             "Start with amethyst and glowstone for spirit crystal shards, then craft a spirit vein node and the Portable Spirit Array.",
                             "Use iron plus a crystal shard in the array to make the first spirit iron blank. That blank unlocks the Alchemy Furnace and Talisman Table."),
                     page("Stations", "2. Cultivation stations", BLUE,
@@ -237,9 +273,11 @@ public class XuanhuanHandbookScreen extends Screen {
                             "Full spirit array: center portable array, spirit soil on four sides, vein or spring foci on four corners. It lowers qi requirement and works faster."),
                     page("Mana", "3. Mana and cooldowns", GREEN,
                             "Qi and magic share one mana pool. Each independently playable mod writes only its own bonus.",
+                            "Practice grants experience to the selected route. Levels 1-10 permanently improve mana, absorption or route-specific body adaptation.",
                             "Meditation restores mana but depletes the local chunk field. Pills restore immediately and consume items."),
                     page("Actions", "4. Actions and Earth Human", GOLD,
                             "Press the configurable cultivation-panel key (K by default) to practice anywhere. Free practice runs at 72% efficiency and uses local qi.",
+                            "Use the panel button or configurable V key for the selected route's active technique. Skills spend mana and have an independent cooldown.",
                             "The Meditation Cushion is optional: sitting provides full efficiency, extra qi gathering, continuous cycles and stronger Earth Human recovery.",
                             "A basic talisman is a pre-charged single-use carrier. It releases stored qi for short Strength and Resistance and uses only 1 mana as the trigger."),
                     page("Links", "5. Optional integrations", GOLD,
@@ -255,7 +293,8 @@ public class XuanhuanHandbookScreen extends Screen {
         }
         return List.of(
                 page("入门", "1. 修行流程", PURPLE,
-                        "用一块泥土、任意木板或任意石头合成《引气诀》。右键会打开这本手册，同时进行一次引气修习。",
+                        "用一块泥土、任意木板或任意石头合成《玄幻地球手册》。它只负责指路，后续配方不会消耗手册。",
+                        "用书、紫水晶碎片和红石制作独立的《引气诀》。研读只解锁周天路线，不会顺便完成一次修炼。",
                         "先用紫水晶碎片和荧石粉制灵晶碎片，再用深板岩和紫水晶块制灵脉节点，优先做出便携聚灵阵。",
                         "在阵眼放入铁锭和灵晶碎片，制得第一块灵铁胚；灵铁胚会解锁丹炉与符案。寻灵罗盘、灵脉、灵泉和灵土可改善本区块灵气。"),
                 page("设施", "2. 三个修行设施怎么用", BLUE,
@@ -265,11 +304,13 @@ public class XuanhuanHandbookScreen extends Screen {
                         "正式聚灵阵：中心便携聚灵阵，四边灵土，四角灵脉节点或灵泉石。成型后外围右键也能打开中心，灵气门槛降低并加速。"),
                 page("法力", "3. 法力、灵气和冷却", GREEN,
                         "玄幻灵力和魔幻魔力使用同一条法力值，两边贡献直接相加，但互相只通过共享持久化键沟通。",
+                        "每次有效修炼会给当前路线增加经验；路线最高 10 级，升级会永久增加法力、吸收率或对应身体适应。",
                         "冥想恢复不消耗物品，但有冷却并会让本区块暂时枯竭；丹药恢复更直接，但要消耗材料。",
                         "如果修行设施不运行，先看界面状态：可能是没材料、输出满、红石模式不允许，或本地灵气低于配方要求。"),
                 page("动作", "4. 修炼、恢复和战斗动作", GOLD,
-                        "修炼动作：引气诀、辟谷、淬体、胎息会提高对应路线和共享法力上限。",
+                        "功法书只负责首次解锁；真正的重复修炼在面板或蒲团结算，并推进当前路线等级。",
                         "按可配置的修炼面板键（默认 K）可在任何位置行一周天；自由修炼效率为 72%，仍会读取并消耗本区块灵气。",
+                        "面板按钮或默认 V 键会施展当前路线的主动功法；归元、护体、胎息和养元效果不同，并独立消耗法力与冷却。",
                         "修行蒲团是可选增益：坐下后获得完整效率、额外聚灵、持续周天和更强的地球人恢复；只有坐着时 Shift 才用于离开。",
                         "战斗动作：基础符箓是预先充能的一次性载体，右键只需 1 法力完成激发，释放其中灵力并获得短时间力量与抗性。"),
                 page("联动", "5. 与地球 Online 的关系", GOLD,

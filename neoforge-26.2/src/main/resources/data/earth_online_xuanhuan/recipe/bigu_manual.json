@@ -2,7 +2,7 @@
   "type": "minecraft:crafting_shapeless",
   "category": "misc",
   "ingredients": [
-    "earth_online_xuanhuan:qi_guiding_manual",
+    "minecraft:book",
     "minecraft:wheat",
     "minecraft:dried_kelp"
   ],

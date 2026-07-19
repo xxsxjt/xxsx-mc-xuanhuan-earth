@@ -1,6 +1,7 @@
 package com.xxsx.earthonline.xuanhuan.client;
 
 import com.xxsx.earthonline.xuanhuan.ArcanaPower;
+import com.xxsx.earthonline.xuanhuan.CultivationStatusPayload;
 import com.xxsx.earthonline.xuanhuan.MeditationSeatEntity;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
@@ -36,12 +37,12 @@ public final class MeditationHud {
         int x = (graphics.guiWidth() - panelWidth) / 2;
         int y = Math.max(8, graphics.guiHeight() - 82);
 
-        float partialTick = deltaTracker.getGameTimeDeltaPartialTick(true);
-        float cycleTick = (seat.tickCount + partialTick) % ArcanaPower.QI_MEDITATION_COOLDOWN_TICKS;
-        float progress = cycleTick / ArcanaPower.QI_MEDITATION_COOLDOWN_TICKS;
+        CultivationStatusPayload status = EarthOnlineXuanhuanClient.cultivationStatus();
+        float cycleTick = Math.max(0.0F,
+                ArcanaPower.QI_MEDITATION_COOLDOWN_TICKS - status.remainingTicks());
+        float progress = Math.min(1.0F, cycleTick / ArcanaPower.QI_MEDITATION_COOLDOWN_TICKS);
         int stage = Math.min(STAGES.length - 1, (int) (progress * STAGES.length));
-        int remainingSeconds = Math.max(1,
-                (int) Math.ceil((ArcanaPower.QI_MEDITATION_COOLDOWN_TICKS - cycleTick) / 20.0F));
+        int remainingSeconds = Math.max(1, (status.remainingTicks() + 19) / 20);
 
         int border = 0xD86CCB8A;
         int panel = 0xD0161D18;
@@ -55,9 +56,9 @@ public final class MeditationHud {
         graphics.fill(x + 4, y + 5, x + 6, y + panelHeight - 5, 0xFF956215);
         graphics.fill(x + panelWidth - 6, y + 5, x + panelWidth - 4, y + panelHeight - 5, 0xFF956215);
         Component focus = Component.translatable(
-                com.xxsx.earthonline.xuanhuan.CultivationFocus.byId(
-                        EarthOnlineXuanhuanClient.cultivationStatus().focusId()).titleKey());
-        Component title = fit(font, Component.translatable("hud.earth_online_xuanhuan.meditation.title", focus), panelWidth - 18);
+                com.xxsx.earthonline.xuanhuan.CultivationFocus.byId(status.focusId()).titleKey());
+        Component title = fit(font, Component.translatable(
+                "hud.earth_online_xuanhuan.meditation.title", focus, status.focusLevel()), panelWidth - 18);
         graphics.centeredText(font, title, x + panelWidth / 2, y + 5, 0xFFF1FFF4);
 
         Component stageText = Component.translatable(stageKey(stage));

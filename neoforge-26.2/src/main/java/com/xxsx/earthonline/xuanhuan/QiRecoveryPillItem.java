@@ -28,7 +28,9 @@ public class QiRecoveryPillItem extends GuidedXuanhuanItem {
             }
             ArcanaPower.setCurrentMana(player, before + 35.0D);
             double restored = ArcanaPower.getCurrentMana(player) - before;
-            ArcanaPower.recordAction(player, level, "recovery_qi_pill");
+            if (player instanceof ServerPlayer serverPlayer) {
+                CultivationNetwork.broadcastVisual(serverPlayer, CultivationVisualAction.RECOVERY);
+            }
             EarthHumanCompat.RecoveryReport report = player instanceof ServerPlayer serverPlayer
                     ? EarthHumanCompat.recoverCore(serverPlayer, 4.0D, 0.16D)
                     : new EarthHumanCompat.RecoveryReport(0.0D, 0.0D);

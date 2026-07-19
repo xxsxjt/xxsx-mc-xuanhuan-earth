@@ -6,4 +6,6 @@ public final class SpiritBeastRenderState extends LivingEntityRenderState {
     public float affinity;
     public int companionMode;
     public boolean aggressive;
+    public float attackProgress;
+    public boolean sitting;
 }

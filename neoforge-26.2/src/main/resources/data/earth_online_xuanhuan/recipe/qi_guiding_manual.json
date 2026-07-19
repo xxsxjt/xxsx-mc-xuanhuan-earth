@@ -3,10 +3,10 @@
   "category": "misc",
   "ingredients": [
     "minecraft:book",
-    "minecraft:iron_ingot",
-    "minecraft:bone"
+    "minecraft:amethyst_shard",
+    "minecraft:redstone"
   ],
   "result": {
-    "id": "earth_online_xuanhuan:body_tempering_manual"
+    "id": "earth_online_xuanhuan:qi_guiding_manual"
   }
 }

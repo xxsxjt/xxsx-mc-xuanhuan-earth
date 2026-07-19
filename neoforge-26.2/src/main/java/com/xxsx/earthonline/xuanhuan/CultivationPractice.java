@@ -11,8 +11,6 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 
-import java.util.Locale;
-
 public final class CultivationPractice {
     public enum Support {
         FREE(0, 0.72D, 0.72D, "free"),
@@ -51,11 +49,18 @@ public final class CultivationPractice {
     }
 
     public static boolean perform(ServerLevel level, BlockPos pos, ServerPlayer player,
-                                  Support support, boolean quietCooldown) {
-        boolean learned = ArcanaPower.learnQiGuiding(player);
+                                  Support support, boolean quietOutput) {
+        if (ArcanaPower.getCultivationLevel(player) <= 0) {
+            if (!quietOutput) {
+                player.sendSystemMessage(Component.translatable(
+                        "message.earth_online_xuanhuan.practice.requires_qi_guiding")
+                        .withStyle(ChatFormatting.RED));
+            }
+            return false;
+        }
         long cooldown = ArcanaPower.getQiMeditationCooldownTicks(player, level);
-        if (!learned && cooldown > 0L) {
-            if (!quietCooldown && cooldown > 20L) {
+        if (cooldown > 0L) {
+            if (!quietOutput && cooldown > 20L) {
                 player.sendSystemMessage(Component.translatable("message.earth_online_xuanhuan.qi_manual.cooldown",
                         (cooldown + 19L) / 20L).withStyle(ChatFormatting.YELLOW));
             }
@@ -73,10 +78,11 @@ public final class CultivationPractice {
         };
         int usableQi = Math.max(1, (int) Math.round(focusedQi * focusScale * support.efficiency()));
         double restored = ArcanaPower.absorbAmbientQi(player, usableQi);
+        int gainedXp = Math.max(2, (int) Math.round((3.0D + focusedQi * 0.12D) * support.efficiency()));
+        ArcanaPower.ProgressResult progress = ArcanaPower.addCultivationExperience(player, focus, gainedXp);
         Spirituality.consume(level, pos, Math.max(1.0D, restored));
         ArcanaPower.startQiMeditationCooldown(player, level);
-        ArcanaPower.recordAction(player, level,
-                "meditation_" + support.translationSuffix + "_" + focus.name().toLowerCase(Locale.ROOT));
+        CultivationNetwork.broadcastVisual(player, CultivationVisualAction.MEDITATION);
 
         double recoveryScale = support.recoveryScale();
         EarthHumanCompat.RecoveryReport report;
@@ -120,17 +126,27 @@ public final class CultivationPractice {
             }
         }
 
-        String state = learned ? "learned" : "used";
-        player.sendSystemMessage(Component.translatable(
-                "message.earth_online_xuanhuan.practice." + state + "." + support.translationSuffix)
-                .withStyle(ChatFormatting.GREEN));
-        player.sendSystemMessage(Component.translatable("message.earth_online_xuanhuan.practice.result",
-                Spirituality.gradeName(reading.value()),
-                reading.value(),
-                ArcanaPower.format(restored),
-                ArcanaPower.format(report.fatigueReduced()),
-                ArcanaPower.format(report.bodyHealed()),
-                Math.round(support.efficiency() * 100.0D)).withStyle(ChatFormatting.AQUA));
+        if (!quietOutput) {
+            player.sendSystemMessage(Component.translatable(
+                    "message.earth_online_xuanhuan.practice.used." + support.translationSuffix)
+                    .withStyle(ChatFormatting.GREEN));
+            player.sendSystemMessage(Component.translatable("message.earth_online_xuanhuan.practice.result",
+                    Spirituality.gradeName(reading.value()),
+                    reading.value(),
+                    ArcanaPower.format(restored),
+                    progress.gainedXp(),
+                    progress.level(),
+                    progress.atCap() ? "MAX" : progress.xp() + "/" + progress.xpNeeded(),
+                    ArcanaPower.format(report.fatigueReduced()),
+                    ArcanaPower.format(report.bodyHealed()),
+                    Math.round(support.efficiency() * 100.0D)).withStyle(ChatFormatting.AQUA));
+        }
+        if (progress.leveledUp()) {
+            player.sendSystemMessage(Component.translatable(
+                    "message.earth_online_xuanhuan.practice.level_up",
+                    Component.translatable(focus.titleKey()), progress.level())
+                    .withStyle(ChatFormatting.GOLD));
+        }
         emitPractice(level, pos, focus, support);
         return true;
     }

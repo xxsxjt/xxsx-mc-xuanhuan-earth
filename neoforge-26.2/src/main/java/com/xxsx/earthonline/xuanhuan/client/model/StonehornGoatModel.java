@@ -25,7 +25,7 @@ public final class StonehornGoatModel extends EntityModel<SpiritBeastRenderState
     private final ModelPart[] legs;
 
     public StonehornGoatModel(ModelPart root) {
-        super(root, RenderTypes::entityTranslucent);
+        super(root, RenderTypes::entityCutout);
         head = root.getChild("head");
         leftHorn = head.getChild("left_horn");
         rightHorn = head.getChild("right_horn");
@@ -50,14 +50,25 @@ public final class StonehornGoatModel extends EntityModel<SpiritBeastRenderState
                         .texOffs(34, 0).addBox(-2.5F, 0.0F, -8.0F, 5.0F, 4.0F, 4.0F)
                         .texOffs(0, 18).addBox(-2.0F, 3.0F, -5.0F, 4.0F, 7.0F, 2.0F),
                 PartPose.offset(0.0F, 10.0F, -8.0F));
-        head.addOrReplaceChild("left_horn", CubeListBuilder.create()
-                        .texOffs(54, 0).addBox(-1.0F, -10.0F, -1.0F, 2.0F, 11.0F, 2.0F)
-                        .texOffs(64, 0).addBox(-1.0F, -13.0F, 0.0F, 2.0F, 5.0F, 2.0F),
-                PartPose.offsetAndRotation(3.2F, -4.0F, 0.0F, -0.35F, 0.0F, 0.42F));
-        head.addOrReplaceChild("right_horn", CubeListBuilder.create()
-                        .texOffs(74, 0).addBox(-1.0F, -10.0F, -1.0F, 2.0F, 11.0F, 2.0F)
-                        .texOffs(84, 0).addBox(-1.0F, -13.0F, 0.0F, 2.0F, 5.0F, 2.0F),
-                PartPose.offsetAndRotation(-3.2F, -4.0F, 0.0F, -0.35F, 0.0F, -0.42F));
+        PartDefinition leftHorn = head.addOrReplaceChild("left_horn", CubeListBuilder.create()
+                        .texOffs(54, 0).addBox(-1.5F, -6.0F, -1.5F, 3.0F, 6.0F, 3.0F),
+                PartPose.offsetAndRotation(3.2F, -4.0F, 0.4F, -0.22F, 0.0F, 0.48F));
+        PartDefinition leftHornMid = leftHorn.addOrReplaceChild("mid", CubeListBuilder.create()
+                        .texOffs(68, 0).addBox(-1.5F, -5.0F, -1.5F, 3.0F, 5.0F, 3.0F),
+                PartPose.offsetAndRotation(0.0F, -5.4F, 0.2F, -0.16F, 0.0F, 0.30F));
+        leftHornMid.addOrReplaceChild("tip", CubeListBuilder.create()
+                        .texOffs(82, 0).addBox(-1.0F, -4.0F, -1.0F, 2.0F, 4.0F, 2.0F),
+                PartPose.offsetAndRotation(0.0F, -4.4F, 0.3F, -0.12F, 0.0F, 0.28F));
+
+        PartDefinition rightHorn = head.addOrReplaceChild("right_horn", CubeListBuilder.create()
+                        .texOffs(92, 0).addBox(-1.5F, -6.0F, -1.5F, 3.0F, 6.0F, 3.0F),
+                PartPose.offsetAndRotation(-3.2F, -4.0F, 0.4F, -0.22F, 0.0F, -0.48F));
+        PartDefinition rightHornMid = rightHorn.addOrReplaceChild("mid", CubeListBuilder.create()
+                        .texOffs(106, 0).addBox(-1.5F, -5.0F, -1.5F, 3.0F, 5.0F, 3.0F),
+                PartPose.offsetAndRotation(0.0F, -5.4F, 0.2F, -0.16F, 0.0F, -0.30F));
+        rightHornMid.addOrReplaceChild("tip", CubeListBuilder.create()
+                        .texOffs(120, 0).addBox(-1.0F, -4.0F, -1.0F, 2.0F, 4.0F, 2.0F),
+                PartPose.offsetAndRotation(0.0F, -4.4F, 0.3F, -0.12F, 0.0F, -0.28F));
         leg(root, "front_right_leg", 0, 62, -4.0F, -5.5F);
         leg(root, "front_left_leg", 18, 62, 4.0F, -5.5F);
         leg(root, "back_right_leg", 36, 62, -4.0F, 5.5F);
@@ -84,7 +95,17 @@ public final class StonehornGoatModel extends EntityModel<SpiritBeastRenderState
         legs[3].xRot = legs[0].xRot;
         body.zRot = Mth.sin(state.ageInTicks * 0.035F) * 0.018F;
         armor.yScale = 1.0F + Mth.sin(state.ageInTicks * 0.12F) * 0.015F * state.affinity;
-        leftHorn.zRot = 0.42F + Mth.sin(state.ageInTicks * 0.08F) * 0.02F;
+        leftHorn.zRot = 0.48F + Mth.sin(state.ageInTicks * 0.08F) * 0.02F;
         rightHorn.zRot = -leftHorn.zRot;
+        float attack = Mth.sin(state.attackProgress * Mth.PI);
+        head.xRot -= attack * 0.9F;
+        body.xRot = attack * 0.08F;
+        if (state.sitting) {
+            body.xRot = 0.12F;
+            for (ModelPart leg : legs) {
+                leg.xRot = -1.15F;
+            }
+            head.xRot += 0.18F;
+        }
     }
 }
