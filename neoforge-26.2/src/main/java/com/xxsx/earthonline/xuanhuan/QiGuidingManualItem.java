@@ -27,6 +27,9 @@ public class QiGuidingManualItem extends Item {
         if (learned) {
             player.sendSystemMessage(Component.translatable("message.earth_online_xuanhuan.qi_manual.learned")
                     .withStyle(ChatFormatting.GREEN));
+            if (player instanceof net.minecraft.server.level.ServerPlayer serverPlayer) {
+                XuanhuanJourney.complete(serverPlayer, XuanhuanJourney.Milestone.INITIATION);
+            }
         } else {
             player.sendSystemMessage(Component.translatable("message.earth_online_xuanhuan.qi_manual.already_learned")
                     .withStyle(ChatFormatting.YELLOW));

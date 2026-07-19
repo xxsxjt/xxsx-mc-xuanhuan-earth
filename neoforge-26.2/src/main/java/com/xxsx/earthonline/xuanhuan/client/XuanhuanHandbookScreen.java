@@ -2,6 +2,7 @@ package com.xxsx.earthonline.xuanhuan.client;
 
 import com.xxsx.earthonline.xuanhuan.CultivationFocus;
 import com.xxsx.earthonline.xuanhuan.CultivationStatusPayload;
+import com.xxsx.earthonline.xuanhuan.XuanhuanJourney;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
@@ -205,13 +206,25 @@ public class XuanhuanHandbookScreen extends Screen {
 
     private List<Entry> liveStatusEntries() {
         CultivationStatusPayload status = EarthOnlineXuanhuanClient.cultivationStatus();
+        List<Entry> entries = new ArrayList<>();
+        int journeyMask = status.journeyMask();
+        entries.add(new Entry(Component.translatable(
+                "screen.earth_online_xuanhuan.handbook.journey.progress",
+                XuanhuanJourney.count(journeyMask), XuanhuanJourney.total()).getString(), 10, GREEN));
+        XuanhuanJourney.Milestone nextMilestone = XuanhuanJourney.nextMilestone(journeyMask);
+        if (nextMilestone == null) {
+            entries.add(new Entry(Component.translatable(
+                    "screen.earth_online_xuanhuan.handbook.journey.complete").getString(), 10, GOLD));
+        } else {
+            entries.add(new Entry(Component.translatable(
+                    "screen.earth_online_xuanhuan.handbook.journey.next",
+                    Component.translatable(nextMilestone.nextKey())).getString(), 10, GOLD));
+        }
+        entries.add(new Entry("", 0, INK));
         if (!status.isUnlocked(CultivationFocus.CIRCULATION)) {
-            return List.of(
-                    new Entry(Component.translatable(
-                            "screen.earth_online_xuanhuan.handbook.status.locked").getString(), 10, PURPLE),
-                    new Entry(Component.translatable(
-                            "screen.earth_online_xuanhuan.handbook.status.next.learn").getString(), 10, GOLD),
-                    new Entry("", 0, INK));
+            entries.add(new Entry(Component.translatable(
+                    "screen.earth_online_xuanhuan.handbook.status.locked").getString(), 10, PURPLE));
+            return List.copyOf(entries);
         }
 
         CultivationFocus focus = CultivationFocus.byId(status.focusId());
@@ -222,13 +235,13 @@ public class XuanhuanHandbookScreen extends Screen {
         String nextKey = unlocked < CultivationFocus.values().length
                 ? "screen.earth_online_xuanhuan.handbook.status.next.unlock"
                 : "screen.earth_online_xuanhuan.handbook.status.next.train";
-        return List.of(
-                new Entry(Component.translatable(
-                        "screen.earth_online_xuanhuan.handbook.status.current",
-                        Component.translatable(focus.titleKey()), status.focusLevel(), xp, unlocked).getString(),
-                        10, GREEN),
-                new Entry(Component.translatable(nextKey).getString(), 10, GOLD),
-                new Entry("", 0, INK));
+        entries.add(new Entry(Component.translatable(
+                "screen.earth_online_xuanhuan.handbook.status.current",
+                Component.translatable(focus.titleKey()), status.focusLevel(), xp, unlocked).getString(),
+                10, GREEN));
+        entries.add(new Entry(Component.translatable(nextKey).getString(), 10, GOLD));
+        entries.add(new Entry("", 0, INK));
+        return List.copyOf(entries);
     }
 
     private int bookWidth() {

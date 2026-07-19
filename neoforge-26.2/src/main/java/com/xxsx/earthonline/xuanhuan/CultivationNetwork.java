@@ -15,7 +15,7 @@ public final class CultivationNetwork {
     }
 
     public static void registerPayloads(RegisterPayloadHandlersEvent event) {
-        event.registrar("0.7.0-alpha.4")
+        event.registrar("0.7.0-alpha.5")
                 .playToClient(CultivationStatusPayload.TYPE, CultivationStatusPayload.CODEC)
                 .playToClient(CultivationVisualPayload.TYPE, CultivationVisualPayload.CODEC)
                 .playToServer(CultivationActionPayload.TYPE, CultivationActionPayload.CODEC,
@@ -37,6 +37,7 @@ public final class CultivationNetwork {
                 (int) Math.min(Integer.MAX_VALUE, ArcanaPower.getQiMeditationCooldownTicks(player, level)),
                 focus.id(),
                 ArcanaPower.getCultivationFocusMask(player),
+                XuanhuanJourney.reconcile(player),
                 ArcanaPower.getFocusLevel(player, focus),
                 ArcanaPower.getFocusXp(player, focus),
                 ArcanaPower.getFocusXpNeeded(player, focus),

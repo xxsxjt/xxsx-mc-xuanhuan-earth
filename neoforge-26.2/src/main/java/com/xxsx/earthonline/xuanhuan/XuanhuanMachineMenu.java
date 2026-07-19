@@ -2,6 +2,7 @@ package com.xxsx.earthonline.xuanhuan;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
@@ -86,6 +87,8 @@ public class XuanhuanMachineMenu extends AbstractContainerMenu {
         }
         ItemStack stack = slot.getItem();
         ItemStack moved = stack.copy();
+        boolean outputSlot = index >= XuanhuanMachineBlockEntity.SLOT_OUTPUT_START
+                && index < XuanhuanMachineBlockEntity.SLOT_COUNT;
         if (index < XuanhuanMachineBlockEntity.SLOT_COUNT) {
             if (!moveItemStackTo(stack, PLAYER_INV_START, HOTBAR_END, true)) {
                 return ItemStack.EMPTY;
@@ -116,6 +119,9 @@ public class XuanhuanMachineMenu extends AbstractContainerMenu {
             slot.setByPlayer(ItemStack.EMPTY);
         } else {
             slot.setChanged();
+        }
+        if (outputSlot && player instanceof ServerPlayer serverPlayer) {
+            XuanhuanJourney.complete(serverPlayer, XuanhuanJourney.Milestone.FACILITY_OUTPUT);
         }
         return moved;
     }
@@ -194,6 +200,14 @@ public class XuanhuanMachineMenu extends AbstractContainerMenu {
         @Override
         public boolean mayPlace(ItemStack stack) {
             return false;
+        }
+
+        @Override
+        public void onTake(Player player, ItemStack carried) {
+            super.onTake(player, carried);
+            if (!carried.isEmpty() && player instanceof ServerPlayer serverPlayer) {
+                XuanhuanJourney.complete(serverPlayer, XuanhuanJourney.Milestone.FACILITY_OUTPUT);
+            }
         }
     }
 

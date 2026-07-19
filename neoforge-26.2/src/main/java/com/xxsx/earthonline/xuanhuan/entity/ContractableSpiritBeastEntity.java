@@ -1,6 +1,7 @@
 package com.xxsx.earthonline.xuanhuan.entity;
 
 import com.xxsx.earthonline.xuanhuan.EarthOnlineXuanhuan;
+import com.xxsx.earthonline.xuanhuan.XuanhuanJourney;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
@@ -151,6 +152,9 @@ public abstract class ContractableSpiritBeastEntity extends TamableAnimal {
                         this.level().broadcastEntityEvent(this, (byte) 7);
                         player.sendSystemMessage(Component.translatable(
                                 "message.earth_online_xuanhuan.beast.contracted", getDisplayName()));
+                        if (player instanceof ServerPlayer serverPlayer) {
+                            XuanhuanJourney.complete(serverPlayer, XuanhuanJourney.Milestone.BEAST_CONTRACT);
+                        }
                     }
                 }
                 return this.level().isClientSide() ? InteractionResult.SUCCESS : InteractionResult.SUCCESS_SERVER;

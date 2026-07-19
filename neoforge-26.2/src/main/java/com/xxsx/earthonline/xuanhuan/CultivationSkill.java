@@ -85,6 +85,7 @@ public final class CultivationSkill {
         player.sendSystemMessage(Component.translatable(
                 "message.earth_online_xuanhuan.skill.activated." + focus.path(),
                 ArcanaPower.format(cost)).withStyle(ChatFormatting.AQUA));
+        XuanhuanJourney.complete(player, XuanhuanJourney.Milestone.ACTIVE_SKILL);
         return true;
     }
 }

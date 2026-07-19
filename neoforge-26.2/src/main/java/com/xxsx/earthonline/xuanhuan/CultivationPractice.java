@@ -147,6 +147,7 @@ public final class CultivationPractice {
                     Component.translatable(focus.titleKey()), progress.level())
                     .withStyle(ChatFormatting.GOLD));
         }
+        XuanhuanJourney.complete(player, XuanhuanJourney.Milestone.PRACTICE);
         emitPractice(level, pos, focus, support);
         return true;
     }

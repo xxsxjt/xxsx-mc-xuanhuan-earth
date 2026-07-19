@@ -4,7 +4,7 @@ license="All Rights Reserved"
 
 [[mods]]
 modId="earth_online_xuanhuan"
-version="0.7.0-alpha.4"
+version="0.7.0-alpha.5"
 displayName="Xuanhuan Earth on Minecraft / 玄幻地球 on Minecraft"
 description='''
 In-development beta for Minecraft 26.2 + NeoForge 26.2.0.7-beta.
@@ -21,6 +21,8 @@ unlock routes. Repeated practice advances independent level-1-to-10 experience
 tracks, and each route has a mana-costed active technique with its own cooldown.
 Level rewards now produce real metabolic, combat-resilience and breathing consequences;
 the handbook reports live progression and the next valid action.
+The handbook also tracks a persistent six-step standalone journey from initiation through
+practice, facility output, active technique, artifact use and spirit-beast contracting.
 Successful practice, recovery and combat techniques broadcast short-lived player
 action states instead of writing unused telemetry.
 Creature render states now carry real attack progress and sitting posture for

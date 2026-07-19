@@ -37,6 +37,9 @@ public class QiRecoveryPillItem extends GuidedXuanhuanItem {
             if (!player.getAbilities().instabuild) {
                 stack.shrink(1);
             }
+            if (player instanceof ServerPlayer serverPlayer) {
+                XuanhuanJourney.complete(serverPlayer, XuanhuanJourney.Milestone.ARTIFACT_USE);
+            }
             player.sendSystemMessage(Component.translatable("message.earth_online_xuanhuan.qi_pill.used",
                     ArcanaPower.format(restored),
                     ArcanaPower.format(ArcanaPower.getCurrentMana(player)),

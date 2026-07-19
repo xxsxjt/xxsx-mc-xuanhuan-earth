@@ -41,6 +41,9 @@ public class BasicTalismanItem extends GuidedXuanhuanItem {
             if (!player.getAbilities().instabuild) {
                 stack.shrink(1);
             }
+            if (player instanceof ServerPlayer serverPlayer) {
+                XuanhuanJourney.complete(serverPlayer, XuanhuanJourney.Milestone.ARTIFACT_USE);
+            }
             player.sendSystemMessage(Component.translatable("message.earth_online_xuanhuan.talisman.used",
                     ArcanaPower.format(TRIGGER_MANA_COST),
                     ArcanaPower.format(ArcanaPower.getCurrentMana(player)),
