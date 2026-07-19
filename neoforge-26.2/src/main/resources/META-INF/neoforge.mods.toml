@@ -1,15 +1,15 @@
 modLoader="javafml"
 loaderVersion="[3,)"
-license="All Rights Reserved"
+license="AGPL-3.0-only"
 
 [[mods]]
-modId="earth_online_xuanhuan"
-version="0.7.0-alpha.7"
-displayName="Xuanhuan Earth on Minecraft / 玄幻地球 on Minecraft"
+modId="xuanhuan_earth"
+version="0.7.0-alpha.8"
+displayName="Xuanhuan Earth / 玄幻地球"
 logoFile="logo.png"
 description='''
 In-development beta for Minecraft 26.2 + NeoForge 26.2.0.7-beta.
-Xuanhuan Earth on Minecraft is independently playable and adds a xuanhuan world layer:
+Xuanhuan Earth is independently playable and adds a xuanhuan world layer:
 spiritual veins, spirit springs, talismans, alchemy vessels and formation cores.
 This build implements the first playable cultivation loop: handbook screen,
 field-aware alchemy/talisman/array stations, JEI categories, consumable
@@ -36,28 +36,28 @@ deferred settlement anchors without replacing vanilla villages or mutating vanil
 '''
 authors="xxsx"
 
-[[dependencies.earth_online_xuanhuan]]
+[[dependencies.xuanhuan_earth]]
 modId="neoforge"
 type="required"
 versionRange="[26.2.0.7-beta,)"
 ordering="NONE"
 side="BOTH"
 
-[[dependencies.earth_online_xuanhuan]]
+[[dependencies.xuanhuan_earth]]
 modId="minecraft"
 type="required"
 versionRange="[26.2]"
 ordering="NONE"
 side="BOTH"
 
-[[dependencies.earth_online_xuanhuan]]
+[[dependencies.xuanhuan_earth]]
 modId="earth_on_minecraft"
 type="optional"
 versionRange="[0.1.0,)"
 ordering="AFTER"
 side="BOTH"
 
-[[dependencies.earth_online_xuanhuan]]
+[[dependencies.xuanhuan_earth]]
 modId="earth_human"
 type="optional"
 versionRange="[0.1.1,)"

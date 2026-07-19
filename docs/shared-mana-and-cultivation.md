@@ -2,7 +2,7 @@
 
 ## 核心决定
 
-`玄幻地球 on Minecraft` 的灵力不单独做一条孤立能量槽。灵力、《魔幻地球 on Minecraft》的魔力和未来其他超自然路线的基础能量，在同时安装时统一显示为“法力值”。
+`玄幻地球` 的灵力不单独做一条孤立能量槽。灵力、《魔幻地球》的魔力和未来其他超自然路线的基础能量，在同时安装时统一显示为“法力值”。
 
 玩家同时练玄幻与魔幻时，不互斥、不覆盖，直接加法计算：
 
@@ -27,23 +27,23 @@
 两个 mod 都读写同一组玩家持久数据键：
 
 ```text
-earth_online_arcana.current_mana
-earth_online_arcana.base_mana
-earth_online_arcana.xuanhuan_mana_bonus
-earth_online_arcana.magic_mana_bonus
-earth_online_arcana.equipment_mana_bonus
-earth_online_arcana.temporary_mana_bonus
-earth_online_arcana.qi_absorption_rate
-earth_online_arcana.magic_attunement_rate
-earth_online_arcana.cultivation_level
-earth_online_arcana.magic_research_level
+earth_arcana.current_mana
+earth_arcana.base_mana
+earth_arcana.xuanhuan_mana_bonus
+earth_arcana.magic_mana_bonus
+earth_arcana.equipment_mana_bonus
+earth_arcana.temporary_mana_bonus
+earth_arcana.qi_absorption_rate
+earth_arcana.magic_attunement_rate
+earth_arcana.cultivation_level
+earth_arcana.magic_research_level
 ```
 
 玄幻分支写入自身路线的等级、经验、吸收率与法力贡献，魔幻分支写入自身路线的数据。两个模组都可以读取共享法力总量，但不得清空或覆盖另一条路线。
 
 双模并装时：
 
-- 玄幻模块负责复制 `earth_online_arcana.*` 克隆数据并消费共享身体适应效果。
+- 玄幻模块负责复制 `earth_arcana.*` 克隆数据并消费共享身体适应效果。
 - 魔幻模块检测到玄幻模块后让出这两项职责，避免死亡重生复制两次或被动收益重复结算。
 - 单独安装任一模块时，该模块自行保留共享数据并提供完整回退路径。
 

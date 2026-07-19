@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/cube_bottom_top",
+  "textures": {
+    "bottom": "xuanhuan_earth:block/spirit_array_core_side",
+    "side": "xuanhuan_earth:block/spirit_array_core_side",
+    "top": "xuanhuan_earth:block/spirit_array_core_top_active"
+  }
+}

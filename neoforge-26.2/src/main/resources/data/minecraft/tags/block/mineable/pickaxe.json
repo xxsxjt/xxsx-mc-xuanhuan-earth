@@ -1,9 +1,9 @@
 {
   "replace": false,
   "values": [
-    "earth_online_xuanhuan:spirit_vein_node",
-    "earth_online_xuanhuan:spirit_spring_stone",
-    "earth_online_xuanhuan:alchemy_furnace",
-    "earth_online_xuanhuan:spirit_array_core"
+    "xuanhuan_earth:spirit_vein_node",
+    "xuanhuan_earth:spirit_spring_stone",
+    "xuanhuan_earth:alchemy_furnace",
+    "xuanhuan_earth:spirit_array_core"
   ]
 }

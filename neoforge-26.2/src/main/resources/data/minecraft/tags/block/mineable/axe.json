@@ -1,7 +1,7 @@
 {
   "replace": false,
   "values": [
-    "earth_online_xuanhuan:talisman_table",
-    "earth_online_xuanhuan:meditation_cushion"
+    "xuanhuan_earth:talisman_table",
+    "xuanhuan_earth:meditation_cushion"
   ]
 }

@@ -7,7 +7,7 @@ from PIL import Image, ImageDraw
 
 
 ROOT = Path(__file__).resolve().parents[1]
-ASSETS = ROOT / "neoforge-26.2" / "src" / "main" / "resources" / "assets" / "earth_online_xuanhuan"
+ASSETS = ROOT / "neoforge-26.2" / "src" / "main" / "resources" / "assets" / "xuanhuan_earth"
 
 
 def color(value: str) -> tuple[int, int, int]:

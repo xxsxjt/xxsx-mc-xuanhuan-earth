@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "minecraft:redstone",
+    "minecraft:ink_sac",
+    "xuanhuan_earth:spirit_crystal_shard"
+  ],
+  "result": {
+    "id": "xuanhuan_earth:cinnabar_spirit_ink",
+    "count": 2
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "variants": {
+    "facing=north": { "model": "xuanhuan_earth:block/meditation_cushion" },
+    "facing=east": { "model": "xuanhuan_earth:block/meditation_cushion", "y": 90 },
+    "facing=south": { "model": "xuanhuan_earth:block/meditation_cushion", "y": 180 },
+    "facing=west": { "model": "xuanhuan_earth:block/meditation_cushion", "y": 270 }
+  }
+}
