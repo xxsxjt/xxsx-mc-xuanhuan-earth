@@ -4,8 +4,9 @@ license="All Rights Reserved"
 
 [[mods]]
 modId="earth_online_xuanhuan"
-version="0.7.0-alpha.5"
+version="0.7.0-alpha.6"
 displayName="Xuanhuan Earth on Minecraft / 玄幻地球 on Minecraft"
+logoFile="logo.png"
 description='''
 In-development beta for Minecraft 26.2 + NeoForge 26.2.0.7-beta.
 Xuanhuan Earth on Minecraft is independently playable and adds a xuanhuan world layer:
