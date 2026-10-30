@@ -76,11 +76,21 @@ public final class CultivationPractice {
             case FETAL_BREATH -> 0.82D;
             case BIGU -> 0.64D;
         };
-        int usableQi = Math.max(1, (int) Math.round(focusedQi * focusScale * support.efficiency()));
-        double restored = ArcanaPower.absorbAmbientQi(player, usableQi);
+        double processedQi = Math.max(1.0D, focusedQi * focusScale * support.efficiency());
+        SpellExecutor.CirculationCommit circulation = SpellExecutor.commitCirculation(
+                level, player, reading, processedQi);
+        if (!circulation.accepted()) {
+            if (!quietOutput) {
+                player.sendSystemMessage(Component.translatable(
+                        "message.xuanhuan_earth.practice.plan_rejected",
+                        circulation.errorCode(), circulation.message())
+                        .withStyle(ChatFormatting.YELLOW));
+            }
+            return false;
+        }
+        double restored = circulation.manaRestored();
         int gainedXp = Math.max(2, (int) Math.round((3.0D + focusedQi * 0.12D) * support.efficiency()));
         ArcanaPower.ProgressResult progress = ArcanaPower.addCultivationExperience(player, focus, gainedXp);
-        Spirituality.consume(level, pos, Math.max(1.0D, restored));
         ArcanaPower.startQiMeditationCooldown(player, level);
         CultivationNetwork.broadcastVisual(player, CultivationVisualAction.MEDITATION);
 

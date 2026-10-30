@@ -143,11 +143,11 @@ public class XuanhuanMachineBlockEntity extends BaseContainerBlockEntity {
         if (machine.progress >= machine.machineProcessTime()) {
             machine.consumeInput(SLOT_PRIMARY, recipe.primary().count());
             machine.consumeInput(SLOT_CATALYST, recipe.catalyst().count());
-            machine.insertOutputs(recipe.outputStacks());
+            machine.insertOutputs(stampOutputs(recipe.outputStacks()));
             double fieldDraw = recipe.fieldDraw() > 0.0D
                     ? recipe.fieldDraw()
                     : requiredField / (machine.structureTier > 0 ? 10.0D : 8.0D);
-            Spirituality.consume(level, pos, Math.max(1.0D, fieldDraw));
+            Spirituality.consumeFieldLevels(level, pos, Math.max(1.0D, fieldDraw));
             machine.emitCompletionEffects(level, pos);
             machine.progress = 0;
         }
@@ -247,6 +247,22 @@ public class XuanhuanMachineBlockEntity extends BaseContainerBlockEntity {
         for (ItemStack output : outputs) {
             fitInto(this.items, output.copy(), SLOT_OUTPUT_START, SLOT_COUNT);
         }
+    }
+
+    /**
+     * Talismans leave the talisman table with a sealed charge. The charge is stamped
+     * here, on the server, so a crafted item can never depend on a client-side count.
+     */
+    private static List<ItemStack> stampOutputs(List<ItemStack> outputs) {
+        List<ItemStack> stamped = new java.util.ArrayList<>(outputs.size());
+        for (ItemStack output : outputs) {
+            ItemStack copy = output.copy();
+            if (copy.is(XuanhuanEarth.BASIC_TALISMAN.get())) {
+                TalismanComponent.drawn(copy);
+            }
+            stamped.add(copy);
+        }
+        return stamped;
     }
 
     private static boolean fitInto(NonNullList<ItemStack> stacks, ItemStack output, int start, int end) {

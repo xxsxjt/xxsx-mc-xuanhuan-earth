@@ -57,11 +57,23 @@ public final class ArcanaChunkField extends SavedData {
         return buildReading(level, pos, scanSources(level, pos), 0.0D);
     }
 
-    public static void consume(Level level, BlockPos pos, double restoredMana) {
-        if (restoredMana <= 0.0D || !(level instanceof ServerLevel serverLevel)) {
+    /**
+     * Field-side debit expressed in AEU. The chunk stores a dimensionless depletion
+     * level, so the conversion happens here exactly once for every caller.
+     */
+    public static void consumeField(Level level, BlockPos pos, double aeu) {
+        if (!Double.isFinite(aeu) || aeu <= 0.0D || !(level instanceof ServerLevel serverLevel)) {
             return;
         }
-        data(serverLevel).consumeAt(serverLevel, pos, restoredMana);
+        data(serverLevel).consumeAt(serverLevel, pos, SpiritFieldLedger.fieldCostOfAeu(aeu));
+    }
+
+    /** Field-side debit already expressed in dimensionless field levels. */
+    public static void consumeFieldLevels(Level level, BlockPos pos, double levels) {
+        if (!Double.isFinite(levels) || levels <= 0.0D || !(level instanceof ServerLevel serverLevel)) {
+            return;
+        }
+        data(serverLevel).consumeAt(serverLevel, pos, levels);
     }
 
     private static ArcanaChunkField data(ServerLevel level) {
@@ -75,11 +87,12 @@ public final class ArcanaChunkField extends SavedData {
         return buildReading(level, pos, sources, depletion);
     }
 
-    private void consumeAt(ServerLevel level, BlockPos pos, double restoredMana) {
+    /** Applies a dimensionless field-level debit; callers convert AEU first. */
+    private void consumeAt(ServerLevel level, BlockPos pos, double fieldLevels) {
         String key = chunkKey(level, pos);
         long now = level.getGameTime();
         double current = currentDepletion(key, now);
-        double added = Math.max(0.5D, restoredMana * 0.35D);
+        double added = Math.max(0.5D, fieldLevels * 0.35D);
         double updated = clamp(current + added, 0.0D, MAX_DEPLETION);
         depletedChunks.put(key, new DepletionState(updated, now));
         setDirty();

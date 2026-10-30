@@ -39,26 +39,27 @@ public final class XuanhuanSettlementAnchorBlockEntity extends BlockEntity {
         XuanhuanSettlementFeature.Type type = XuanhuanSettlementFeature.Type.byId(settlementType);
         switch (type) {
             case WANDERING_MARKET -> {
-                spawnResident(level, pos.offset(-2, 1, 1), CultivationSettlerEntity.Role.WANDERING_MERCHANT);
-                spawnResident(level, pos.offset(2, 1, 1), CultivationSettlerEntity.Role.WANDERING_MERCHANT);
-                spawnResident(level, pos.offset(0, 1, -2), CultivationSettlerEntity.Role.SECT_STEWARD);
+                spawnResident(level, pos.offset(-2, 1, 1), pos, CultivationSettlerEntity.Role.WANDERING_MERCHANT);
+                spawnResident(level, pos.offset(2, 1, 1), pos, CultivationSettlerEntity.Role.WANDERING_MERCHANT);
+                spawnResident(level, pos.offset(0, 1, -2), pos, CultivationSettlerEntity.Role.SECT_STEWARD);
             }
             case SPIRIT_SPRING_VILLAGE -> {
-                spawnResident(level, pos.offset(-2, 1, 0), CultivationSettlerEntity.Role.SPIRIT_SPRING_KEEPER);
-                spawnResident(level, pos.offset(2, 1, 0), CultivationSettlerEntity.Role.SPIRIT_SPRING_KEEPER);
-                spawnResident(level, pos.offset(0, 1, 3), CultivationSettlerEntity.Role.WANDERING_MERCHANT);
+                spawnResident(level, pos.offset(-2, 1, 0), pos, CultivationSettlerEntity.Role.SPIRIT_SPRING_KEEPER);
+                spawnResident(level, pos.offset(2, 1, 0), pos, CultivationSettlerEntity.Role.SPIRIT_SPRING_KEEPER);
+                spawnResident(level, pos.offset(0, 1, 3), pos, CultivationSettlerEntity.Role.WANDERING_MERCHANT);
                 spawnBeast(level, pos.offset(3, 1, 3), XuanhuanEarth.SPIRIT_FOX.get());
             }
             case SECT_OUTPOST -> {
-                spawnResident(level, pos.offset(-2, 1, 0), CultivationSettlerEntity.Role.SECT_STEWARD);
-                spawnResident(level, pos.offset(2, 1, 0), CultivationSettlerEntity.Role.SECT_STEWARD);
-                spawnResident(level, pos.offset(0, 1, 3), CultivationSettlerEntity.Role.SPIRIT_SPRING_KEEPER);
+                spawnResident(level, pos.offset(-2, 1, 0), pos, CultivationSettlerEntity.Role.SECT_STEWARD);
+                spawnResident(level, pos.offset(2, 1, 0), pos, CultivationSettlerEntity.Role.SECT_STEWARD);
+                spawnResident(level, pos.offset(0, 1, 3), pos, CultivationSettlerEntity.Role.SPIRIT_SPRING_KEEPER);
             }
         }
         XuanhuanEarth.LOGGER.info("Initialized xuanhuan settlement {} at {}", settlementType, pos);
     }
 
-    private static void spawnResident(ServerLevel level, BlockPos pos, CultivationSettlerEntity.Role role) {
+    private static void spawnResident(ServerLevel level, BlockPos pos, BlockPos settlementAnchor,
+                                      CultivationSettlerEntity.Role role) {
         CultivationSettlerEntity resident = XuanhuanEarth.CULTIVATION_SETTLER.get()
                 .create(level, EntitySpawnReason.STRUCTURE);
         if (resident == null) {
@@ -66,6 +67,12 @@ public final class XuanhuanSettlementAnchorBlockEntity extends BlockEntity {
         }
         BlockPos spawnPos = findOpenSpawn(level, pos);
         resident.setRole(role);
+        resident.getPersistentData().putString("EarthOnMinecraftResidentRole",
+                "xuanhuan_earth:" + role.name().toLowerCase(java.util.Locale.ROOT));
+        resident.getPersistentData().putString("EarthOnMinecraftSettlementProfile", "earth_on_minecraft:cultivation_settlement");
+        resident.getPersistentData().putInt("EarthOnMinecraftSettlementAnchorX", settlementAnchor.getX());
+        resident.getPersistentData().putInt("EarthOnMinecraftSettlementAnchorY", settlementAnchor.getY());
+        resident.getPersistentData().putInt("EarthOnMinecraftSettlementAnchorZ", settlementAnchor.getZ());
         resident.snapTo(spawnPos.getX() + 0.5D, spawnPos.getY(), spawnPos.getZ() + 0.5D,
                 level.getRandom().nextFloat() * 360.0F, 0.0F);
         resident.setPersistenceRequired();

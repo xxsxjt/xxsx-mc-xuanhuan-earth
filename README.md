@@ -62,7 +62,7 @@
 ## 构建
 
 ```powershell
-cd D:\_dx\_Games\MC\_agent\xuanhuan_earth\neoforge-26.2
+cd D:\Codex\WORKSPACES\Projects\mc-agent\earth-series\xuanhuan_earth\neoforge-26.2
 .\gradlew.bat build --no-daemon --offline
 ```
 

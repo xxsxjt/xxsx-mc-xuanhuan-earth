@@ -85,6 +85,11 @@ public final class ArcanaPower {
         return true;
     }
 
+    public static boolean canSpendMana(Player player, double amount) {
+        double cost = Math.max(0.0D, amount);
+        return getCurrentMana(player) + 0.0001D >= cost;
+    }
+
     public static int getCultivationLevel(Player player) {
         return Math.max(0, data(player).getIntOr(CULTIVATION_LEVEL, 0));
     }
@@ -260,17 +265,6 @@ public final class ArcanaPower {
         add(tag, XUANHUAN_MANA_BONUS, 12.0D);
         setCurrentMana(player, getMaxMana(player));
         return true;
-    }
-
-    public static double absorbAmbientQi(Player player, int ambientQi) {
-        double rate = getQiAbsorptionRate(player);
-        if (rate <= 0.0D) {
-            return 0.0D;
-        }
-        double before = getCurrentMana(player);
-        double amount = Math.max(1.0D, ambientQi * rate);
-        setCurrentMana(player, before + amount);
-        return getCurrentMana(player) - before;
     }
 
     public static long getQiMeditationCooldownTicks(Player player, Level level) {

@@ -67,6 +67,8 @@ public class XuanhuanEarth {
     public static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITY_TYPES = DeferredRegister.create(Registries.BLOCK_ENTITY_TYPE, MODID);
     public static final DeferredRegister<MenuType<?>> MENUS = DeferredRegister.create(Registries.MENU, MODID);
     public static final DeferredRegister<Feature<?>> FEATURES = DeferredRegister.create(Registries.FEATURE, MODID);
+    public static final DeferredRegister.DataComponents DATA_COMPONENTS =
+            DeferredRegister.createDataComponents(Registries.DATA_COMPONENT_TYPE, MODID);
 
     private static final List<ItemLike> TAB_ITEMS = new ArrayList<>();
     private static final List<DeferredBlock<XuanhuanMachineBlock>> MACHINE_BLOCKS = new ArrayList<>();
@@ -171,6 +173,18 @@ public class XuanhuanEarth {
     public static final DeferredItem<BasicTalismanItem> BASIC_TALISMAN = item("basic_talisman",
             props -> new BasicTalismanItem(props, "tooltip.xuanhuan_earth.basic_talisman"));
     public static final DeferredItem<GuidedXuanhuanItem> SPIRIT_CRYSTAL_SHARD = material("spirit_crystal_shard", "tooltip.xuanhuan_earth.spirit_crystal_shard");
+    public static final DeferredItem<SpiritStoneItem> SPIRIT_STONE = item("spirit_stone",
+            props -> new SpiritStoneItem(props.stacksTo(1), "tooltip.xuanhuan_earth.spirit_stone"));
+    public static final DeferredHolder<net.minecraft.core.component.DataComponentType<?>,
+            net.minecraft.core.component.DataComponentType<SpiritStoneComponent>> SPIRIT_STONE_CHARGE =
+            DATA_COMPONENTS.registerComponentType("spirit_stone_charge", builder -> builder
+                    .persistent(SpiritStoneComponent.CODEC)
+                    .networkSynchronized(net.minecraft.network.codec.ByteBufCodecs.fromCodec(SpiritStoneComponent.CODEC)));
+    public static final DeferredHolder<net.minecraft.core.component.DataComponentType<?>,
+            net.minecraft.core.component.DataComponentType<TalismanComponent>> TALISMAN_CHARGE =
+            DATA_COMPONENTS.registerComponentType("talisman_charge", builder -> builder
+                    .persistent(TalismanComponent.CODEC)
+                    .networkSynchronized(net.minecraft.network.codec.ByteBufCodecs.fromCodec(TalismanComponent.CODEC)));
     public static final DeferredItem<GuidedXuanhuanItem> SPIRIT_IRON_BLANK = material("spirit_iron_blank", "tooltip.xuanhuan_earth.spirit_iron_blank");
     public static final DeferredItem<QiRecoveryPillItem> QI_RECOVERY_PILL = item("qi_recovery_pill",
             props -> new QiRecoveryPillItem(props, "tooltip.xuanhuan_earth.qi_recovery_pill"));
@@ -207,6 +221,7 @@ public class XuanhuanEarth {
         BLOCK_ENTITY_TYPES.register(modBus);
         MENUS.register(modBus);
         FEATURES.register(modBus);
+        DATA_COMPONENTS.register(modBus);
         modBus.addListener(CultivationNetwork::registerPayloads);
         modBus.addListener(this::registerEntityAttributes);
         modBus.addListener(this::registerSpawnPlacements);
@@ -216,6 +231,7 @@ public class XuanhuanEarth {
         NeoForge.EVENT_BUS.addListener(ArcanaPassiveEffects::onFall);
         NeoForge.EVENT_BUS.addListener(ArcanaPassiveEffects::onBreathe);
         NeoForge.EVENT_BUS.addListener(XuanhuanSettlementCatalog::register);
+        NeoForge.EVENT_BUS.addListener(SpellGraphLoader::register);
         modBus.addListener(this::registerCreativeTab);
         if (FMLEnvironment.getDist() == Dist.CLIENT) {
             XuanhuanEarthClient.register(modBus);

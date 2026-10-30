@@ -1,8 +1,13 @@
 package com.xxsx.xuanhuanearth.settlement;
 
 import com.mojang.serialization.Codec;
+import com.xxsx.xuanhuanearth.TalismanComponent;
 import com.xxsx.xuanhuanearth.XuanhuanEarth;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.Container;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -68,6 +73,16 @@ public final class XuanhuanSettlementFeature extends Feature<NoneFeatureConfigur
         level.setBlock(center.offset(0, 0, -3), Blocks.CAMPFIRE.defaultBlockState(), UPDATE_FLAGS);
         level.setBlock(center.offset(-3, 0, 2), Blocks.BARREL.defaultBlockState(), UPDATE_FLAGS);
         level.setBlock(center.offset(3, 0, 2), Blocks.CHEST.defaultBlockState(), UPDATE_FLAGS);
+        level.setBlock(center.offset(-2, 0, 1), XuanhuanEarth.TALISMAN_TABLE.get().defaultBlockState(), UPDATE_FLAGS);
+        level.setBlock(center.offset(2, 0, 1), XuanhuanEarth.SPIRIT_ARRAY_CORE.get().defaultBlockState(), UPDATE_FLAGS);
+        level.setBlock(center.offset(0, 0, 1), XuanhuanEarth.SPIRIT_VEIN_NODE.get().defaultBlockState(), UPDATE_FLAGS);
+        stock(level, center.offset(-3, 0, 2), new ItemStack(XuanhuanEarth.TALISMAN_PAPER.get(), 16),
+                new ItemStack(XuanhuanEarth.CINNABAR_SPIRIT_INK.get(), 6),
+                new ItemStack(XuanhuanEarth.SPIRIT_GRASS.get(), 8));
+        stock(level, center.offset(3, 0, 2), new ItemStack(XuanhuanEarth.SPIRIT_CRYSTAL_SHARD.get(), 8),
+                new ItemStack(XuanhuanEarth.SPIRIT_SPRING_BOTTLE.get(), 4),
+                new ItemStack(XuanhuanEarth.BASIC_TALISMAN.get(), 3));
+        placeBoard(level, center.offset(0, 0, -2));
         cornerLanterns(level, center, 4, Blocks.SPRUCE_FENCE.defaultBlockState());
     }
 
@@ -81,9 +96,20 @@ public final class XuanhuanSettlementFeature extends Feature<NoneFeatureConfigur
         level.setBlock(center, XuanhuanEarth.SETTLEMENT_ANCHOR.get().defaultBlockState(), UPDATE_FLAGS);
         buildOpenHut(level, center.offset(-3, 0, 2), Blocks.SPRUCE_PLANKS.defaultBlockState());
         buildOpenHut(level, center.offset(3, 0, 2), Blocks.BIRCH_PLANKS.defaultBlockState());
+        level.setBlock(center.offset(-3, 0, 2), XuanhuanEarth.ALCHEMY_FURNACE.get().defaultBlockState(), UPDATE_FLAGS);
+        level.setBlock(center.offset(3, 0, 2), XuanhuanEarth.SPIRIT_SPRING_STONE.get().defaultBlockState(), UPDATE_FLAGS);
+        level.setBlock(center.offset(0, 0, 4), XuanhuanEarth.SPIRIT_SOIL.get().defaultBlockState(), UPDATE_FLAGS);
+        level.setBlock(center.offset(0, 0, -4), XuanhuanEarth.SPIRIT_VEIN_NODE.get().defaultBlockState(), UPDATE_FLAGS);
+        stock(level, center.offset(-4, 0, 2), new ItemStack(XuanhuanEarth.SPIRIT_GRASS.get(), 16),
+                new ItemStack(XuanhuanEarth.SPIRIT_SPRING_BOTTLE.get(), 8),
+                new ItemStack(XuanhuanEarth.SPIRIT_CRYSTAL_SHARD.get(), 4));
+        stock(level, center.offset(4, 0, 2), new ItemStack(XuanhuanEarth.TALISMAN_PAPER.get(), 12),
+                new ItemStack(XuanhuanEarth.CINNABAR_SPIRIT_INK.get(), 6),
+                new ItemStack(XuanhuanEarth.BASIC_TALISMAN.get(), 3));
         for (int x = -3; x <= 3; x += 2) {
             level.setBlock(center.offset(x, 0, -3), Blocks.FLOWERING_AZALEA.defaultBlockState(), UPDATE_FLAGS);
         }
+        placeBoard(level, center.offset(0, 0, 2));
     }
 
     private static void buildSectOutpost(WorldGenLevel level, BlockPos center) {
@@ -102,6 +128,16 @@ public final class XuanhuanSettlementFeature extends Feature<NoneFeatureConfigur
         line(level, center.offset(-2, 4, -5), 5, true, Blocks.DARK_OAK_PLANKS.defaultBlockState());
         level.setBlock(center.offset(-3, 0, 2), Blocks.BOOKSHELF.defaultBlockState(), UPDATE_FLAGS);
         level.setBlock(center.offset(3, 0, 2), Blocks.TARGET.defaultBlockState(), UPDATE_FLAGS);
+        level.setBlock(center.offset(-3, 0, 2), XuanhuanEarth.ALCHEMY_FURNACE.get().defaultBlockState(), UPDATE_FLAGS);
+        level.setBlock(center.offset(3, 0, 2), XuanhuanEarth.TALISMAN_TABLE.get().defaultBlockState(), UPDATE_FLAGS);
+        level.setBlock(center.offset(0, 0, 2), XuanhuanEarth.SPIRIT_ARRAY_CORE.get().defaultBlockState(), UPDATE_FLAGS);
+        level.setBlock(center.offset(0, 0, -2), XuanhuanEarth.SPIRIT_VEIN_NODE.get().defaultBlockState(), UPDATE_FLAGS);
+        stock(level, center.offset(-4, 0, 2), new ItemStack(XuanhuanEarth.SPIRIT_GRASS.get(), 12),
+                new ItemStack(XuanhuanEarth.SPIRIT_CRYSTAL_SHARD.get(), 8));
+        stock(level, center.offset(4, 0, 2), new ItemStack(XuanhuanEarth.TALISMAN_PAPER.get(), 16),
+                new ItemStack(XuanhuanEarth.CINNABAR_SPIRIT_INK.get(), 8),
+                new ItemStack(XuanhuanEarth.BASIC_TALISMAN.get(), 4));
+        placeBoard(level, center.offset(0, 0, -3));
         cornerLanterns(level, center, 4, Blocks.DARK_OAK_FENCE.defaultBlockState());
     }
 
@@ -158,6 +194,28 @@ public final class XuanhuanSettlementFeature extends Feature<NoneFeatureConfigur
     private static void line(WorldGenLevel level, BlockPos start, int length, boolean alongX, BlockState state) {
         for (int i = 0; i < length; i++) {
             level.setBlock(start.offset(alongX ? i : 0, 0, alongX ? 0 : i), state, UPDATE_FLAGS);
+        }
+    }
+
+    private static void stock(WorldGenLevel level, BlockPos pos, ItemStack... items) {
+        level.setBlock(pos, Blocks.BARREL.defaultBlockState(), UPDATE_FLAGS);
+        if (level.getBlockEntity(pos) instanceof Container container) {
+            for (int slot = 0; slot < Math.min(container.getContainerSize(), items.length); slot++) {
+                container.setItem(slot, sealed(items[slot].copy()));
+            }
+        }
+    }
+
+    /** Village stock must be usable; an unsealed talisman could never be triggered. */
+    private static ItemStack sealed(ItemStack stack) {
+        return stack.is(XuanhuanEarth.BASIC_TALISMAN.get()) ? TalismanComponent.drawn(stack) : stack;
+    }
+
+    private static void placeBoard(WorldGenLevel level, BlockPos pos) {
+        Block board = BuiltInRegistries.BLOCK.getValue(
+                Identifier.fromNamespaceAndPath("earth_on_minecraft", "settlement_board"));
+        if (board != null && board != Blocks.AIR) {
+            level.setBlock(pos, board.defaultBlockState(), UPDATE_FLAGS);
         }
     }
 

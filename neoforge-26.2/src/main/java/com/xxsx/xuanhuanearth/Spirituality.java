@@ -16,8 +16,14 @@ public final class Spirituality {
         return ArcanaChunkField.read(level, pos);
     }
 
-    public static void consume(Level level, BlockPos pos, double restoredMana) {
-        ArcanaChunkField.consume(level, pos, restoredMana);
+    /** Draws an explicit AEU quantity out of the local field ledger. */
+    public static void consumeField(Level level, BlockPos pos, double aeu) {
+        ArcanaChunkField.consumeField(level, pos, aeu);
+    }
+
+    /** Draws a dimensionless field-level quantity; used by stations that budget in levels. */
+    public static void consumeFieldLevels(Level level, BlockPos pos, double levels) {
+        ArcanaChunkField.consumeFieldLevels(level, pos, levels);
     }
 
     public static Component gradeName(int value) {
