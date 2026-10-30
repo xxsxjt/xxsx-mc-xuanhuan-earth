@@ -73,6 +73,10 @@ public final class XuanhuanSettlementFeature extends Feature<NoneFeatureConfigur
         level.setBlock(center, XuanhuanEarth.SETTLEMENT_ANCHOR.get().defaultBlockState(), FLAGS);
         if (level.getBlockEntity(center) instanceof XuanhuanSettlementAnchorBlockEntity anchor) {
             anchor.configure(type.id(), layout.ordinal(), palette.id());
+            // Record the real standing spots for this layout. The anchor cannot derive them
+            // from the layout enum alone, because each builder places its buildings
+            // differently, and a mismatch spawns residents inside walls.
+            anchor.setSpawnOffsets(spawnOffsets(layout));
         }
         return true;
     }
@@ -213,8 +217,9 @@ public final class XuanhuanSettlementFeature extends Feature<NoneFeatureConfigur
                 }
             }
         }
-        level.setBlock(center.offset(0, 3, 0), XuanhuanEarth.SPIRIT_ARRAY_CORE.get().defaultBlockState(), FLAGS);
-        level.setBlock(center.offset(0, 2, 0), XuanhuanEarth.SPIRIT_VEIN_NODE.get().defaultBlockState(), FLAGS);
+        // The altar is a complete formal array on the top step, not a lone core: a core with
+        // no soil ring and no corner focus can never form, so it would be a dead block.
+        formalArray(level, center.offset(0, 2, 0));
         for (int x : new int[]{-2, 2}) {
             for (int z : new int[]{-2, 2}) {
                 level.setBlock(center.offset(x, 1, z), Blocks.CAMPFIRE.defaultBlockState(), FLAGS);
@@ -258,6 +263,19 @@ public final class XuanhuanSettlementFeature extends Feature<NoneFeatureConfigur
                 new ItemStack(XuanhuanEarth.SPIRIT_BEAST_SEAL.get(), 2));
         SettlementStyle.lanternRing(level, center, radius - 1, palette);
         scatterProps(level, center, radius - 1, random);
+    }
+
+    /**
+     * Standing spots per layout, in the same order as the builders place their buildings.
+     * Every entry is an open floor tile one block above the paved surface.
+     */
+    private static int[][] spawnOffsets(SettlementStyle.Layout layout) {
+        return switch (layout) {
+            case CROSS -> new int[][]{{-4, 1, -3}, {4, 1, -3}, {-4, 1, 3}, {4, 1, 3}};
+            case STREET -> new int[][]{{-4, 1, -3}, {0, 1, -3}, {4, 1, -3}};
+            case HALL -> new int[][]{{0, 1, -3}, {-5, 1, 3}, {5, 1, 3}};
+            case RING -> new int[][]{{-4, 1, 0}, {4, 1, 0}, {0, 1, -4}};
+        };
     }
 
     private static void pave(WorldGenLevel level, BlockPos center, int radius,

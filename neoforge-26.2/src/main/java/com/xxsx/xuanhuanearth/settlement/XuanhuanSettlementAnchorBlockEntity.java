@@ -30,6 +30,7 @@ public final class XuanhuanSettlementAnchorBlockEntity extends BlockEntity {
     private String palette = "spruce";
     private boolean initialized;
     private int warmupTicks;
+    private int[][] spawnOffsets = new int[0][];
 
     public XuanhuanSettlementAnchorBlockEntity(BlockPos pos, BlockState state) {
         super(XuanhuanEarth.SETTLEMENT_ANCHOR_BLOCK_ENTITY.get(), pos, state);
@@ -63,7 +64,7 @@ public final class XuanhuanSettlementAnchorBlockEntity extends BlockEntity {
             roster.set(j, tmp);
         }
 
-        List<BlockPos> spots = spawnSpots(pos, shape);
+        List<BlockPos> spots = recordedSpots(pos, shape, spawnOffsets);
         for (int i = 0; i < Math.min(roster.size(), spots.size()); i++) {
             spawnResident(level, spots.get(i), pos, roster.get(i));
         }
@@ -72,7 +73,9 @@ public final class XuanhuanSettlementAnchorBlockEntity extends BlockEntity {
                 || type == XuanhuanSettlementFeature.Type.SECT_OUTPOST
                 || type == XuanhuanSettlementFeature.Type.SPIRIT_BEAST_KEEPER_CAMP
                 || type == XuanhuanSettlementFeature.Type.MOUNTAIN_SPIRIT_SHRINE) {
-            spawnBeast(level, pos.offset(3, 1, 3), randomBeast(random));
+            // A fixed corner can be water, a wall or a paved tile, so search outward instead
+            // of trusting one hard-coded offset.
+            spawnBeastNear(level, pos, randomBeast(random));
         }
         XuanhuanEarth.LOGGER.info("Initialized xuanhuan settlement {} layout={} palette={} residents={} at {}",
                 settlementType, shape, palette, roster.size(), pos);
@@ -103,16 +106,26 @@ public final class XuanhuanSettlementAnchorBlockEntity extends BlockEntity {
         };
     }
 
-    /** Where residents stand depends on how the site was laid out. */
-    private static List<BlockPos> spawnSpots(BlockPos pos, SettlementStyle.Layout shape) {
+    /**
+     * Where residents stand. Prefers the offsets the feature recorded at generation time,
+     * because only the builder knows where it actually put the buildings.
+     */
+    private static List<BlockPos> recordedSpots(BlockPos pos, SettlementStyle.Layout shape, int[][] spawnOffsets) {
+        if (spawnOffsets.length > 0) {
+            List<BlockPos> spots = new ArrayList<>(spawnOffsets.length);
+            for (int[] offset : spawnOffsets) {
+                spots.add(pos.offset(offset[0], offset[1], offset[2]));
+            }
+            return spots;
+        }
         return switch (shape) {
             case CROSS -> List.of(
                     pos.offset(-4, 1, -3), pos.offset(4, 1, -3),
                     pos.offset(-4, 1, 3), pos.offset(4, 1, 3));
             case STREET -> List.of(
-                    pos.offset(-5, 1, -3), pos.offset(0, 1, -3), pos.offset(5, 1, -3));
+                    pos.offset(-4, 1, -3), pos.offset(0, 1, -3), pos.offset(4, 1, -3));
             case HALL -> List.of(
-                    pos.offset(0, 1, -2), pos.offset(-5, 1, 3), pos.offset(5, 1, 3));
+                    pos.offset(0, 1, -3), pos.offset(-5, 1, 3), pos.offset(5, 1, 3));
             case RING -> List.of(
                     pos.offset(-4, 1, 0), pos.offset(4, 1, 0), pos.offset(0, 1, -4));
         };
@@ -150,17 +163,32 @@ public final class XuanhuanSettlementAnchorBlockEntity extends BlockEntity {
         level.addFreshEntity(resident);
     }
 
-    private static void spawnBeast(ServerLevel level, BlockPos pos,
-                                   EntityType<? extends ContractableSpiritBeastEntity> type) {
-        ContractableSpiritBeastEntity beast = type.create(level, EntitySpawnReason.STRUCTURE);
-        if (beast == null) {
-            return;
+    private static void spawnBeastNear(ServerLevel level, BlockPos anchor,
+                                       EntityType<? extends ContractableSpiritBeastEntity> type) {
+        // Ring search outward from the anchor so the beast lands on open ground.
+        for (int radius = 2; radius <= 6; radius++) {
+            for (int dx = -radius; dx <= radius; dx++) {
+                for (int dz = -radius; dz <= radius; dz++) {
+                    if (Math.max(Math.abs(dx), Math.abs(dz)) != radius) {
+                        continue;
+                    }
+                    BlockPos candidate = findOpenSpawn(level, anchor.offset(dx, 1, dz));
+                    if (!level.isEmptyBlock(candidate)
+                            || level.isEmptyBlock(candidate.below())) {
+                        continue;
+                    }
+                    ContractableSpiritBeastEntity beast = type.create(level, EntitySpawnReason.STRUCTURE);
+                    if (beast == null) {
+                        return;
+                    }
+                    beast.snapTo(candidate.getX() + 0.5D, candidate.getY(), candidate.getZ() + 0.5D,
+                            level.getRandom().nextFloat() * 360.0F, 0.0F);
+                    beast.setPersistenceRequired();
+                    level.addFreshEntity(beast);
+                    return;
+                }
+            }
         }
-        BlockPos spawnPos = findOpenSpawn(level, pos);
-        beast.snapTo(spawnPos.getX() + 0.5D, spawnPos.getY(), spawnPos.getZ() + 0.5D,
-                level.getRandom().nextFloat() * 360.0F, 0.0F);
-        beast.setPersistenceRequired();
-        level.addFreshEntity(beast);
     }
 
     private static BlockPos findOpenSpawn(ServerLevel level, BlockPos preferred) {
@@ -183,6 +211,10 @@ public final class XuanhuanSettlementAnchorBlockEntity extends BlockEntity {
             }
         }
         return preferred;
+    }
+
+    public void setSpawnOffsets(int[][] offsets) {
+        this.spawnOffsets = offsets == null ? new int[0][] : offsets;
     }
 
     public void configure(String settlementType, int layout, String palette) {
@@ -214,6 +246,14 @@ public final class XuanhuanSettlementAnchorBlockEntity extends BlockEntity {
         output.putString("Palette", palette);
         output.putBoolean("Initialized", initialized);
         output.putInt("WarmupTicks", warmupTicks);
+        // Flattened as x,y,z triples so the roster survives a reload.
+        int[] flat = new int[spawnOffsets.length * 3];
+        for (int i = 0; i < spawnOffsets.length; i++) {
+            flat[i * 3] = spawnOffsets[i][0];
+            flat[i * 3 + 1] = spawnOffsets[i][1];
+            flat[i * 3 + 2] = spawnOffsets[i][2];
+        }
+        output.putIntArray("SpawnOffsets", flat);
     }
 
     @Override
@@ -225,5 +265,10 @@ public final class XuanhuanSettlementAnchorBlockEntity extends BlockEntity {
         palette = input.getStringOr("Palette", "spruce");
         initialized = input.getBooleanOr("Initialized", false);
         warmupTicks = input.getIntOr("WarmupTicks", 0);
+        int[] flat = input.getIntArray("SpawnOffsets").orElse(new int[0]);
+        spawnOffsets = new int[flat.length / 3][3];
+        for (int i = 0; i + 2 < flat.length; i += 3) {
+            spawnOffsets[i / 3] = new int[]{flat[i], flat[i + 1], flat[i + 2]};
+        }
     }
 }

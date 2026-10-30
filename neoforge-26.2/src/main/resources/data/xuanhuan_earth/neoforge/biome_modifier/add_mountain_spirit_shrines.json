@@ -1,0 +1,8 @@
+{
+  "type": "neoforge:add_features",
+  "biomes": "#minecraft:is_mountain",
+  "features": [
+    "xuanhuan_earth:mountain_spirit_shrine"
+  ],
+  "step": "surface_structures"
+}
