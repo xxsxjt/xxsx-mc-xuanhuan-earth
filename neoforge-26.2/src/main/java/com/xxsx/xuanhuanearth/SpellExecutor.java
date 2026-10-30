@@ -77,6 +77,7 @@ public final class SpellExecutor {
         XuanhuanJourney.complete(player, XuanhuanJourney.Milestone.ARTIFACT_USE);
         if (level != null) {
             CultivationNetwork.broadcastVisual(player, CultivationVisualAction.TALISMAN);
+            XuanhuanEffects.talismanActivation(level, player.position());
         }
         return true;
     }

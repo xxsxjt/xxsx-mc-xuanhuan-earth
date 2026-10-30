@@ -101,24 +101,45 @@ public final class EmberCraneModel extends EntityModel<SpiritBeastRenderState> {
         super.setupAnim(state);
         float walk = state.walkAnimationPos;
         float speed = Math.min(state.walkAnimationSpeed, 1.0F);
+        float hurt = state.hurtTime > 0.0F ? Mth.sin(state.hurtTime * 0.9F) : 0.0F;
         neck.yRot = state.yRot * Mth.DEG_TO_RAD * 0.75F;
         neck.xRot = state.xRot * Mth.DEG_TO_RAD * 0.45F;
         head.xRot = Mth.sin(state.ageInTicks * 0.06F) * 0.025F;
+        head.zRot = hurt * 0.14F;
         leftLeg.xRot = Mth.cos(walk * 0.68F) * 0.82F * speed;
         rightLeg.xRot = Mth.cos(walk * 0.68F + Mth.PI) * 0.82F * speed;
+
         float attack = Mth.sin(state.attackProgress * Mth.PI);
-        float wingBeat = Mth.sin(state.ageInTicks * (state.aggressive ? 0.32F : 0.09F));
-        leftWing.zRot = -0.12F - wingBeat * (state.aggressive ? 0.5F : 0.06F) - attack * 0.72F;
+        boolean airborne = !state.onGround && state.leapProgress != 0.0F;
+        float beatSpeed = state.aggressive || airborne ? 0.32F : 0.09F;
+        float wingBeat = Mth.sin(state.ageInTicks * beatSpeed);
+        float spread = state.aggressive ? 0.5F : 0.06F;
+        if (airborne) {
+            spread = 0.85F;
+        }
+        leftWing.zRot = -0.12F - wingBeat * spread - attack * 0.72F;
         rightWing.zRot = -leftWing.zRot;
+        leftWing.yRot = Mth.sin(state.ageInTicks * 0.05F) * 0.04F;
+        rightWing.yRot = -leftWing.yRot;
         neck.xRot -= attack * 0.48F;
-        tail.yRot = Mth.sin(state.ageInTicks * 0.07F) * 0.08F;
-        body.y = 13.0F + Mth.sin(state.ageInTicks * 0.08F) * 0.06F;
+        tail.yRot = Mth.sin(state.ageInTicks * 0.07F) * 0.08F + state.tailWag * 0.04F;
+        tail.xRot = 0.42F + Mth.sin(state.ageInTicks * 0.05F) * 0.05F;
+        body.y = 13.0F + Mth.sin(state.ageInTicks * 0.08F) * 0.06F + state.breathPhase * 0.05F;
+
         if (state.sitting) {
             leftLeg.xRot = -1.25F;
             rightLeg.xRot = -1.25F;
             leftWing.zRot = -0.08F;
             rightWing.zRot = 0.08F;
             body.y += 1.2F;
+        }
+
+        if (state.isInWater) {
+            leftLeg.xRot = -0.6F;
+            rightLeg.xRot = -0.6F;
+            leftWing.zRot = -0.5F - wingBeat * 0.25F;
+            rightWing.zRot = 0.5F + wingBeat * 0.25F;
+            body.y = 14.0F;
         }
     }
 }

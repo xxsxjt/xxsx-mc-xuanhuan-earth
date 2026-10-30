@@ -2,7 +2,7 @@ package com.xxsx.xuanhuanearth;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.particles.ParticleTypes;
+import com.xxsx.xuanhuanearth.particle.XuanhuanParticles;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -80,14 +80,15 @@ public class MeditationSeatEntity extends Entity {
         double y = this.sourcePos.getY() + 0.28D;
         double z = this.sourcePos.getZ() + 0.5D;
         if (this.tickCount % 10 == 0) {
-            serverLevel.sendParticles(ParticleTypes.ENCHANT, x, y, z, 3, 0.34D, 0.10D, 0.34D, 0.01D);
+            serverLevel.sendParticles(XuanhuanParticles.QI_MOTE.get(), x, y, z, 3, 0.34D, 0.10D, 0.34D, 0.01D);
         }
         if (this.tickCount % 40 == 0) {
-            serverLevel.sendParticles(ParticleTypes.END_ROD, x, y + 0.25D, z, 1, 0.16D, 0.20D, 0.16D, 0.005D);
+            serverLevel.sendParticles(XuanhuanParticles.QI_SPARK.get(), x, y + 0.25D, z, 1, 0.16D, 0.20D, 0.16D, 0.005D);
         }
         if (this.tickCount % 20 == 0
                 && MeditationCushionBlock.performSeatedMeditation(serverLevel, this.sourcePos, player, true)) {
-            serverLevel.sendParticles(ParticleTypes.END_ROD, x, y + 0.35D, z, 8, 0.42D, 0.32D, 0.42D, 0.015D);
+            XuanhuanEffects.groundRing(serverLevel, new Vec3(x, y, z), 1.0F);
+            serverLevel.sendParticles(XuanhuanParticles.QI_MOTE.get(), x, y + 0.35D, z, 8, 0.42D, 0.32D, 0.42D, 0.015D);
             serverLevel.playSound(null, this.sourcePos, SoundEvents.AMETHYST_BLOCK_CHIME,
                     SoundSource.PLAYERS, 0.65F, 1.25F);
         }

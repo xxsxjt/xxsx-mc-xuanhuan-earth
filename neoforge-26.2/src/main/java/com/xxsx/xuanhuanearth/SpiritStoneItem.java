@@ -50,6 +50,9 @@ public class SpiritStoneItem extends GuidedXuanhuanItem {
         }
         stack.set(XuanhuanEarth.SPIRIT_STONE_CHARGE, state.withCharge(result.charge()));
         Spirituality.consumeField(level, player.blockPosition(), result.fieldSpent());
+        if (level instanceof net.minecraft.server.level.ServerLevel serverLevel) {
+            XuanhuanEffects.stoneCharge(serverLevel, player.position());
+        }
         player.sendSystemMessage(Component.translatable("message.xuanhuan_earth.spirit_stone.charged",
                 ArcanaPower.format(result.fieldSpent()), ArcanaPower.format(result.gained()),
                 ArcanaPower.format(result.charge()), ArcanaPower.format(SpiritStoneCharge.CAPACITY_AEU),
@@ -79,6 +82,9 @@ public class SpiritStoneItem extends GuidedXuanhuanItem {
         if (player instanceof ServerPlayer serverPlayer) {
             CultivationNetwork.broadcastVisual(serverPlayer, CultivationVisualAction.RECOVERY);
             XuanhuanJourney.complete(serverPlayer, XuanhuanJourney.Milestone.ARTIFACT_USE);
+            if (level instanceof net.minecraft.server.level.ServerLevel serverLevel) {
+                XuanhuanEffects.stoneRelease(serverLevel, player.position());
+            }
         }
         player.sendSystemMessage(Component.translatable("message.xuanhuan_earth.spirit_stone.released",
                 ArcanaPower.format(result.aeuSpent()), ArcanaPower.format(restored),

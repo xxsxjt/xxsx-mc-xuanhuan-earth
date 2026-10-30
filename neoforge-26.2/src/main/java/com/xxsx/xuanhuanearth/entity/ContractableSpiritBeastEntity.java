@@ -3,7 +3,8 @@ package com.xxsx.xuanhuanearth.entity;
 import com.xxsx.xuanhuanearth.XuanhuanEarth;
 import com.xxsx.xuanhuanearth.XuanhuanJourney;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.particles.ParticleTypes;
+import com.xxsx.xuanhuanearth.XuanhuanEffects;
+import com.xxsx.xuanhuanearth.particle.XuanhuanParticles;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
@@ -127,9 +128,12 @@ public abstract class ContractableSpiritBeastEntity extends TamableAnimal {
                     stack.consume(1, player);
                     setAffinity(getAffinity() + 1);
                     if (this.level() instanceof ServerLevel serverLevel) {
-                        serverLevel.sendParticles(ParticleTypes.HAPPY_VILLAGER,
+                        XuanhuanEffects.qiRise(serverLevel,
+                                this.position().add(0.0D, this.getBbHeight() * 0.5D, 0.0D),
+                                0.55D, 10, 0.025D);
+                        serverLevel.sendParticles(XuanhuanParticles.QI_SPARK.get(),
                                 getX(), getY() + getBbHeight() * 0.75D, getZ(),
-                                7, 0.35D, 0.3D, 0.35D, 0.02D);
+                                5, 0.3D, 0.25D, 0.3D, 0.02D);
                     }
                     player.sendSystemMessage(Component.translatable(
                             "message.xuanhuan_earth.beast.affinity", getAffinity(), MAX_AFFINITY));
@@ -203,10 +207,26 @@ public abstract class ContractableSpiritBeastEntity extends TamableAnimal {
     @Override
     public void aiStep() {
         super.aiStep();
-        if (this.level().isClientSide() && this.tickCount % kind.particleInterval() == 0
-                && this.random.nextFloat() < 0.76F) {
+        if (!this.level().isClientSide()) {
+            return;
+        }
+        // Client-side ambient aura: cheap enough to run every few ticks, and it is what
+        // makes a tamed beast read as "carrying qi" without any server packet traffic.
+        if (this.tickCount % kind.particleInterval() == 0 && this.random.nextFloat() < 0.8F) {
             this.level().addParticle(kind.particle(), this.getRandomX(0.7D),
                     this.getRandomY() + 0.08D, this.getRandomZ(0.7D), 0.0D, 0.018D, 0.0D);
+        }
+        if (this.isTame() && this.tickCount % 26 == 0) {
+            XuanhuanEffects.beastAura(this.level(), this.position().add(0.0D, this.getBbHeight() * 0.6D, 0.0D),
+                    kind);
+        }
+        if (this.hurtTime == this.hurtDuration && this.hurtDuration > 0) {
+            for (int i = 0; i < 6; i++) {
+                this.level().addParticle(XuanhuanParticles.BLOOD_MOTE.get(),
+                        this.getRandomX(0.5D), this.getRandomY(), this.getRandomZ(0.5D),
+                        (this.random.nextDouble() - 0.5D) * 0.05D, 0.02D,
+                        (this.random.nextDouble() - 0.5D) * 0.05D);
+            }
         }
     }
 
@@ -289,11 +309,11 @@ public abstract class ContractableSpiritBeastEntity extends TamableAnimal {
     }
 
     public enum Kind {
-        SPIRIT_FOX(ParticleTypes.ENCHANT, 16),
-        WIND_WOLF(ParticleTypes.GUST, 13),
-        STONEHORN_GOAT(ParticleTypes.WAX_ON, 18),
-        CRYSTAL_TURTLE(ParticleTypes.GLOW, 15),
-        EMBER_CRANE(ParticleTypes.FLAME, 12);
+        SPIRIT_FOX(XuanhuanParticles.QI_MOTE.get(), 16),
+        WIND_WOLF(XuanhuanParticles.QI_SPARK.get(), 13),
+        STONEHORN_GOAT(XuanhuanParticles.EMBER_SPARK.get(), 18),
+        CRYSTAL_TURTLE(XuanhuanParticles.RUNE_GLYPH_B.get(), 15),
+        EMBER_CRANE(XuanhuanParticles.EMBER_LEAF.get(), 12);
 
         private final net.minecraft.core.particles.ParticleOptions particle;
         private final int particleInterval;

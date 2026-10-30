@@ -87,25 +87,51 @@ public final class StonehornGoatModel extends EntityModel<SpiritBeastRenderState
         super.setupAnim(state);
         float walk = state.walkAnimationPos;
         float speed = Math.min(state.walkAnimationSpeed, 1.0F);
+        float run = state.runAmount;
+        float hurt = state.hurtTime > 0.0F ? Mth.sin(state.hurtTime * 0.9F) : 0.0F;
+        float leap = state.leapProgress;
+
         head.yRot = state.yRot * Mth.DEG_TO_RAD;
         head.xRot = state.xRot * Mth.DEG_TO_RAD + (state.aggressive ? -0.22F : 0.0F);
-        legs[0].xRot = Mth.cos(walk * 0.58F) * 0.85F * speed;
-        legs[1].xRot = Mth.cos(walk * 0.58F + Mth.PI) * 0.85F * speed;
+        head.zRot = hurt * 0.16F;
+
+        float stride = Mth.lerp(run, 1.0F, 1.35F);
+        legs[0].xRot = Mth.cos(walk * 0.58F) * 0.85F * speed * stride;
+        legs[1].xRot = Mth.cos(walk * 0.58F + Mth.PI) * 0.85F * speed * stride;
         legs[2].xRot = legs[1].xRot;
         legs[3].xRot = legs[0].xRot;
-        body.zRot = Mth.sin(state.ageInTicks * 0.035F) * 0.018F;
+
+        if (leap > 0.05F) {
+            legs[0].xRot -= leap * 0.4F;
+            legs[1].xRot -= leap * 0.4F;
+            legs[2].xRot += leap * 0.35F;
+            legs[3].xRot += leap * 0.35F;
+        }
+
+        body.zRot = Mth.sin(state.ageInTicks * 0.035F) * 0.018F + state.breathPhase * 0.01F;
+        body.xRot = state.breathPhase * 0.012F - leap * 0.1F;
         armor.yScale = 1.0F + Mth.sin(state.ageInTicks * 0.12F) * 0.015F * state.affinity;
         leftHorn.zRot = 0.48F + Mth.sin(state.ageInTicks * 0.08F) * 0.02F;
         rightHorn.zRot = -leftHorn.zRot;
+
         float attack = Mth.sin(state.attackProgress * Mth.PI);
         head.xRot -= attack * 0.9F;
-        body.xRot = attack * 0.08F;
+        body.xRot += attack * 0.08F;
+
         if (state.sitting) {
             body.xRot = 0.12F;
             for (ModelPart leg : legs) {
                 leg.xRot = -1.15F;
             }
             head.xRot += 0.18F;
+        }
+
+        if (state.isInWater) {
+            float paddle = Mth.sin(state.ageInTicks * 0.4F);
+            for (int i = 0; i < legs.length; i++) {
+                legs[i].xRot = (i % 2 == 0 ? paddle : -paddle) * 0.42F;
+            }
+            body.xRot = 0.06F;
         }
     }
 }

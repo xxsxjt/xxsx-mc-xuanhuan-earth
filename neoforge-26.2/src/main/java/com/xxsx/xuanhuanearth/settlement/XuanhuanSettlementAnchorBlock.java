@@ -2,7 +2,7 @@ package com.xxsx.xuanhuanearth.settlement;
 
 import com.xxsx.xuanhuanearth.XuanhuanEarth;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.particles.ParticleTypes;
+import com.xxsx.xuanhuanearth.particle.XuanhuanParticles;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionResult;
@@ -52,8 +52,12 @@ public final class XuanhuanSettlementAnchorBlock extends Block implements Entity
     @Override
     public void animateTick(BlockState state, Level level, BlockPos pos, RandomSource random) {
         if (random.nextInt(4) == 0) {
-            level.addParticle(ParticleTypes.ENCHANT, pos.getX() + 0.5D, pos.getY() + 1.05D,
+            level.addParticle(XuanhuanParticles.QI_MOTE.get(), pos.getX() + 0.5D, pos.getY() + 1.05D,
                     pos.getZ() + 0.5D, 0.0D, 0.025D, 0.0D);
+        }
+        if (random.nextInt(90) == 0) {
+            level.addParticle(XuanhuanParticles.RUNE_GLYPH_A.get(), pos.getX() + 0.5D,
+                    pos.getY() + 1.2D, pos.getZ() + 0.5D, 0.0D, 0.0D, 0.0D);
         }
     }
 }

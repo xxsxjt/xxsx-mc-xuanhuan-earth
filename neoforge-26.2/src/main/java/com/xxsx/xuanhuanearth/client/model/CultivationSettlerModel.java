@@ -144,26 +144,55 @@ public final class CultivationSettlerModel extends EntityModel<CultivationSettle
         this.head.xRot = state.xRot * Mth.DEG_TO_RAD;
         float walk = state.walkAnimationPos;
         float speed = Math.min(state.walkAnimationSpeed, 1.0F);
+        float hurt = state.hurtTime > 0.0F ? Mth.sin(state.hurtTime * 0.9F) : 0.0F;
+        float breath = state.breathPhase;
+        float gesture = state.gesturePhase;
+
         this.rightLeg.xRot = Mth.cos(walk * 0.6662F) * 1.0F * speed;
         this.leftLeg.xRot = Mth.cos(walk * 0.6662F + Mth.PI) * 1.0F * speed;
+        this.rightLeg.zRot = hurt * 0.12F;
+        this.leftLeg.zRot = -hurt * 0.12F;
 
         if (state.trading) {
-            this.rightArm.xRot = -0.72F;
-            this.leftArm.xRot = -0.72F;
+            this.rightArm.xRot = -0.72F + gesture * 0.06F;
+            this.leftArm.xRot = -0.72F - gesture * 0.05F;
             this.rightArm.yRot = -0.28F;
             this.leftArm.yRot = 0.28F;
+            this.rightArm.zRot = 0.10F;
+            this.leftArm.zRot = -0.10F;
+        } else if (!state.walking) {
+            // Idle: slow breathing plus a role-specific fidget so the villager is never frozen.
+            this.rightArm.xRot = gesture * 0.05F + breath * 0.03F;
+            this.leftArm.xRot = -gesture * 0.04F + breath * 0.03F;
+            this.rightArm.yRot = 0.06F;
+            this.leftArm.yRot = -0.06F;
+            this.rightArm.zRot = 0.04F;
+            this.leftArm.zRot = -0.04F;
+            if (state.role == 0) {
+                this.rightArm.xRot -= 0.18F + gesture * 0.08F;
+            } else if (state.role == 1) {
+                this.leftArm.xRot -= 0.12F + breath * 0.06F;
+            } else if (state.role == 2) {
+                this.rightArm.xRot -= 0.10F;
+                this.head.xRot += gesture * 0.04F;
+            }
         } else {
             this.rightArm.xRot = this.leftLeg.xRot * 0.65F;
             this.leftArm.xRot = this.rightLeg.xRot * 0.65F;
             this.rightArm.yRot = 0.0F;
             this.leftArm.yRot = 0.0F;
+            this.rightArm.zRot = 0.0F;
+            this.leftArm.zRot = 0.0F;
         }
+
+        this.body.xRot = breath * 0.012F + hurt * 0.06F;
+        this.body.yRot = Mth.sin(state.ageInTicks * 0.03F) * 0.015F;
+        this.head.zRot = hurt * 0.14F;
 
         this.merchantPack.visible = state.role == 0;
         this.merchantStaff.visible = state.role == 0;
         this.springPack.visible = state.role == 1;
         this.stewardPack.visible = state.role == 2;
         this.hairBun.visible = state.role != 0;
-        this.body.yRot = Mth.sin(state.ageInTicks * 0.03F) * 0.015F;
     }
 }

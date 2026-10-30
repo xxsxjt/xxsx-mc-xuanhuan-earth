@@ -2,7 +2,7 @@ package com.xxsx.xuanhuanearth;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.NonNullList;
-import net.minecraft.core.particles.ParticleTypes;
+import com.xxsx.xuanhuanearth.particle.XuanhuanParticles;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
@@ -18,6 +18,7 @@ import net.minecraft.world.level.block.entity.BaseContainerBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.world.phys.Vec3;
 
 import java.util.List;
 import java.util.Optional;
@@ -399,14 +400,24 @@ public class XuanhuanMachineBlockEntity extends BaseContainerBlockEntity {
         if (!(level instanceof ServerLevel serverLevel) || level.getGameTime() % 12L != 0L) {
             return;
         }
-        var particle = switch (kind()) {
-            case ALCHEMY_FURNACE -> ParticleTypes.FLAME;
-            case TALISMAN_TABLE -> ParticleTypes.ENCHANT;
-            case SPIRIT_ARRAY_CORE -> ParticleTypes.END_ROD;
-        };
-        serverLevel.sendParticles(particle, pos.getX() + 0.5D, pos.getY() + 1.02D, pos.getZ() + 0.5D,
-                kind() == XuanhuanMachineBlock.Kind.SPIRIT_ARRAY_CORE ? 2 : 1,
-                0.20D, 0.08D, 0.20D, 0.005D);
+        Vec3 center = Vec3.atCenterOf(pos);
+        switch (kind()) {
+            case ALCHEMY_FURNACE -> XuanhuanEffects.smokePlume(serverLevel,
+                    center.add(0.0D, 1.02D, 0.0D), true, 1);
+            case TALISMAN_TABLE -> {
+                serverLevel.sendParticles(XuanhuanParticles.QI_MOTE.get(),
+                        center.x, center.y + 1.02D, center.z, 1, 0.2D, 0.08D, 0.2D, 0.005D);
+                if (level.getGameTime() % 36L == 0L) {
+                    XuanhuanEffects.runeCluster(serverLevel, center, 1, 0.6D, false);
+                }
+            }
+            case SPIRIT_ARRAY_CORE -> {
+                XuanhuanEffects.qiRise(serverLevel, center, 0.55D, 2, 0.012D);
+                if (level.getGameTime() % 48L == 0L) {
+                    XuanhuanEffects.groundRing(serverLevel, center, 1.0F);
+                }
+            }
+        }
     }
 
     private void emitCompletionEffects(Level level, BlockPos pos) {
@@ -415,18 +426,21 @@ public class XuanhuanMachineBlockEntity extends BaseContainerBlockEntity {
         }
         switch (kind()) {
             case ALCHEMY_FURNACE -> {
-                serverLevel.sendParticles(ParticleTypes.FLAME, pos.getX() + 0.5D, pos.getY() + 1.05D, pos.getZ() + 0.5D,
-                        8, 0.28D, 0.18D, 0.28D, 0.02D);
+                XuanhuanEffects.smokePlume(serverLevel, Vec3.atCenterOf(pos).add(0.0D, 1.05D, 0.0D), true, 8);
+                serverLevel.sendParticles(XuanhuanParticles.EMBER_SPARK.get(),
+                        pos.getX() + 0.5D, pos.getY() + 1.0D, pos.getZ() + 0.5D,
+                        6, 0.28D, 0.18D, 0.28D, 0.02D);
                 serverLevel.playSound(null, pos, SoundEvents.BREWING_STAND_BREW, SoundSource.BLOCKS, 0.7F, 0.85F);
             }
             case TALISMAN_TABLE -> {
-                serverLevel.sendParticles(ParticleTypes.ENCHANT, pos.getX() + 0.5D, pos.getY() + 1.08D, pos.getZ() + 0.5D,
-                        16, 0.34D, 0.18D, 0.34D, 0.02D);
+                XuanhuanEffects.talismanActivation(serverLevel, Vec3.atCenterOf(pos));
                 serverLevel.playSound(null, pos, SoundEvents.ENCHANTMENT_TABLE_USE, SoundSource.BLOCKS, 0.7F, 1.15F);
             }
             case SPIRIT_ARRAY_CORE -> {
-                serverLevel.sendParticles(ParticleTypes.END_ROD, pos.getX() + 0.5D, pos.getY() + 0.8D, pos.getZ() + 0.5D,
-                        12, 0.45D, 0.24D, 0.45D, 0.015D);
+                Vec3 center = Vec3.atCenterOf(pos);
+                XuanhuanEffects.groundRing(serverLevel, center, 1.6F);
+                XuanhuanEffects.qiRise(serverLevel, center, 0.85D, 12, 0.03D);
+                XuanhuanEffects.sparkBurst(serverLevel, center.add(0.0D, 0.8D, 0.0D), 10, 0.08D);
                 serverLevel.playSound(null, pos, SoundEvents.AMETHYST_BLOCK_RESONATE, SoundSource.BLOCKS, 0.8F, 1.1F);
             }
         }

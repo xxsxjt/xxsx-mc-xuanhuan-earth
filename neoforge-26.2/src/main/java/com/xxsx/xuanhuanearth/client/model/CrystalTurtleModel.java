@@ -77,8 +77,10 @@ public final class CrystalTurtleModel extends EntityModel<SpiritBeastRenderState
         super.setupAnim(state);
         float walk = state.walkAnimationPos;
         float speed = Math.min(state.walkAnimationSpeed, 1.0F);
+        float hurt = state.hurtTime > 0.0F ? Mth.sin(state.hurtTime * 0.9F) : 0.0F;
         head.yRot = state.yRot * Mth.DEG_TO_RAD * 0.65F;
         head.xRot = state.xRot * Mth.DEG_TO_RAD * 0.5F;
+        head.zRot = hurt * 0.12F;
         frontRight.yRot = Mth.cos(walk * 0.58F) * 0.55F * speed;
         frontLeft.yRot = Mth.cos(walk * 0.58F + Mth.PI) * 0.55F * speed;
         backRight.yRot = frontLeft.yRot;
@@ -87,7 +89,9 @@ public final class CrystalTurtleModel extends EntityModel<SpiritBeastRenderState
         crystals.xScale = pulse;
         crystals.yScale = pulse;
         crystals.zScale = pulse;
+        crystals.xRot = Mth.sin(state.ageInTicks * 0.07F) * 0.03F;
         shell.yRot = Mth.sin(state.ageInTicks * 0.025F) * 0.012F;
+        shell.xRot = state.breathPhase * 0.008F;
         float attack = Mth.sin(state.attackProgress * Mth.PI);
         head.z -= attack * 1.8F;
         head.xRot -= attack * 0.32F;
@@ -99,6 +103,14 @@ public final class CrystalTurtleModel extends EntityModel<SpiritBeastRenderState
             backRight.yRot = -0.62F;
             backLeft.yRot = 0.62F;
             crystals.yScale *= 0.96F;
+        }
+        if (state.isInWater) {
+            float paddle = Mth.sin(state.ageInTicks * 0.3F);
+            frontRight.yRot = paddle * 0.7F;
+            frontLeft.yRot = -paddle * 0.7F;
+            backRight.yRot = -paddle * 0.6F;
+            backLeft.yRot = paddle * 0.6F;
+            head.xRot = 0.1F + state.xRot * Mth.DEG_TO_RAD * 0.3F;
         }
     }
 }

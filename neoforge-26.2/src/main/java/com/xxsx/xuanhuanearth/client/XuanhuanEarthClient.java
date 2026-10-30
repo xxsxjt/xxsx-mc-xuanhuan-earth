@@ -6,6 +6,7 @@ import com.xxsx.xuanhuanearth.client.model.EmberCraneModel;
 import com.xxsx.xuanhuanearth.client.model.SpiritFoxModel;
 import com.xxsx.xuanhuanearth.client.model.StonehornGoatModel;
 import com.xxsx.xuanhuanearth.client.model.WindWolfModel;
+import com.xxsx.xuanhuanearth.client.particle.XuanhuanParticleProviders;
 import com.xxsx.xuanhuanearth.client.renderer.CultivationSettlerRenderer;
 import com.xxsx.xuanhuanearth.client.renderer.SpiritBeastRenderer;
 import com.xxsx.xuanhuanearth.client.renderer.SpiritFoxRenderer;
@@ -23,6 +24,7 @@ import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
 import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
+import net.neoforged.neoforge.client.event.RegisterParticleProvidersEvent;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import net.neoforged.neoforge.client.network.event.RegisterClientPayloadHandlersEvent;
 import net.neoforged.neoforge.common.NeoForge;
@@ -53,6 +55,7 @@ public final class XuanhuanEarthClient {
         modBus.addListener(XuanhuanEarthClient::registerGuiLayers);
         modBus.addListener(XuanhuanEarthClient::registerPayloadHandlers);
         modBus.addListener(XuanhuanEarthClient::registerKeyMappings);
+        modBus.addListener(XuanhuanParticleProviders::register);
         NeoForge.EVENT_BUS.addListener(XuanhuanEarthClient::clientTick);
         NeoForge.EVENT_BUS.addListener(CultivationPlayerAnimations::renderPlayer);
     }

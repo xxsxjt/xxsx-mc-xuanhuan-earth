@@ -4,7 +4,7 @@ license="AGPL-3.0-only"
 
 [[mods]]
 modId="xuanhuan_earth"
-version="0.7.0-alpha.9"
+version="0.7.0-alpha.10"
 displayName="Xuanhuan Earth / 玄幻地球"
 logoFile="logo.png"
 description='''
@@ -35,6 +35,9 @@ spirit spring villages and sect frontier outposts generate through isolated feat
 deferred settlement anchors without replacing vanilla villages or mutating vanilla mobs.
 Spirit stones now carry a persistent AEU field charge, talismans seal their charge when
 drawn, and spell graphs load from data packs so server operators can retune costs.
+Rituals, stations and beasts use dedicated xuanhuan particles instead of vanilla ones,
+spirit beasts have emissive eyes and react to hurt, water, leaps and running, and player
+cultivation poses now gather, release and settle instead of looping a single sway.
 '''
 authors="xxsx"
 

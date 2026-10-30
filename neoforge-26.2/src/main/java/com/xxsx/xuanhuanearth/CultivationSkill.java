@@ -1,7 +1,6 @@
 package com.xxsx.xuanhuanearth;
 
 import net.minecraft.ChatFormatting;
-import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -73,13 +72,7 @@ public final class CultivationSkill {
         player.swing(InteractionHand.MAIN_HAND, true);
         ArcanaPower.startSkillCooldown(player, level);
         CultivationNetwork.broadcastVisual(player, CultivationVisualAction.forFocus(focus));
-        level.sendParticles(switch (focus) {
-                    case CIRCULATION -> ParticleTypes.END_ROD;
-                    case BODY_TEMPERING -> ParticleTypes.FLAME;
-                    case FETAL_BREATH -> ParticleTypes.CLOUD;
-                    case BIGU -> ParticleTypes.HAPPY_VILLAGER;
-                }, player.getX(), player.getY() + 1.0D, player.getZ(),
-                20, 0.65D, 0.85D, 0.65D, 0.025D);
+        XuanhuanEffects.skillBurst(level, player.position(), focus);
         level.playSound(null, player.blockPosition(), SoundEvents.AMETHYST_BLOCK_RESONATE,
                 SoundSource.PLAYERS, 0.8F, 0.9F + focus.id() * 0.08F);
         player.sendSystemMessage(Component.translatable(

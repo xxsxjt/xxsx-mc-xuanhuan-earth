@@ -30,6 +30,12 @@ public final class CultivationSettlerRenderer extends MobRenderer<CultivationSet
         super.extractRenderState(entity, state, partialTick);
         state.role = entity.getRole().id();
         state.trading = entity.isTrading();
+        state.hurtTime = Math.max(0.0F, entity.hurtTime - partialTick);
+        state.breathPhase = net.minecraft.util.Mth.sin((entity.tickCount + partialTick) * 0.09F);
+        state.gesturePhase = net.minecraft.util.Mth.sin((entity.tickCount + partialTick) * 0.045F);
+        state.walking = entity.walkAnimation.speed(partialTick) > 0.02F;
+        state.runAmount = net.minecraft.util.Mth.clamp(entity.walkAnimation.speed(partialTick) * 1.5F,
+                0.0F, 1.0F);
     }
 
     @Override

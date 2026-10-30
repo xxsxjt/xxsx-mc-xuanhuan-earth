@@ -9,6 +9,7 @@ import com.xxsx.xuanhuanearth.entity.EmberCraneEntity;
 import com.xxsx.xuanhuanearth.entity.SpiritFoxEntity;
 import com.xxsx.xuanhuanearth.entity.StonehornGoatEntity;
 import com.xxsx.xuanhuanearth.entity.WindWolfEntity;
+import com.xxsx.xuanhuanearth.particle.XuanhuanParticles;
 import com.xxsx.xuanhuanearth.settlement.XuanhuanSettlementAnchorBlock;
 import com.xxsx.xuanhuanearth.settlement.XuanhuanSettlementAnchorBlockEntity;
 import com.xxsx.xuanhuanearth.settlement.XuanhuanSettlementCatalog;
@@ -222,6 +223,7 @@ public class XuanhuanEarth {
         MENUS.register(modBus);
         FEATURES.register(modBus);
         DATA_COMPONENTS.register(modBus);
+        XuanhuanParticles.PARTICLE_TYPES.register(modBus);
         modBus.addListener(CultivationNetwork::registerPayloads);
         modBus.addListener(this::registerEntityAttributes);
         modBus.addListener(this::registerSpawnPlacements);

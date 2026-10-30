@@ -31,6 +31,7 @@ public final class WindWolfModel extends EntityModel<SpiritBeastRenderState> {
     private final ModelPart tail;
     private final ModelPart tailMid;
     private final ModelPart tailTip;
+    private final ModelPart[] ears;
 
     public WindWolfModel(ModelPart root) {
         super(root, RenderTypes::entityCutout);
@@ -48,6 +49,7 @@ public final class WindWolfModel extends EntityModel<SpiritBeastRenderState> {
         this.tail = root.getChild("tail");
         this.tailMid = this.tail.getChild("tail_mid");
         this.tailTip = this.tailMid.getChild("tail_tip");
+        this.ears = new ModelPart[]{this.head.getChild("left_ear"), this.head.getChild("right_ear")};
     }
 
     public static LayerDefinition createBodyLayer() {
@@ -55,8 +57,10 @@ public final class WindWolfModel extends EntityModel<SpiritBeastRenderState> {
         PartDefinition root = mesh.getRoot();
 
         root.addOrReplaceChild("body", CubeListBuilder.create()
-                        .texOffs(0, 24).addBox(-4.0F, -4.0F, -7.0F, 8.0F, 8.0F, 14.0F),
-                PartPose.offset(0.0F, 15.0F, 0.0F));
+                        .texOffs(0, 24).addBox(-4.0F, -4.0F, -7.0F, 8.0F, 8.0F, 14.0F)
+                        .texOffs(0, 46).addBox(-3.5F, -4.6F, -6.2F, 7.0F, 1.0F, 12.0F,
+                                new CubeDeformation(0.06F)),
+                PartPose.offset(0.0F, 14.0F, 0.0F));
 
         PartDefinition mane = root.addOrReplaceChild("mane", CubeListBuilder.create()
                         .texOffs(48, 20).addBox(-4.5F, -5.0F, -3.0F, 9.0F, 10.0F, 6.0F,
@@ -72,12 +76,16 @@ public final class WindWolfModel extends EntityModel<SpiritBeastRenderState> {
                         .texOffs(104, 40).addBox(0.0F, -2.0F, 0.0F, 2.0F, 4.0F, 8.0F),
                 PartPose.offsetAndRotation(3.7F, -1.0F, 0.0F, -0.1F, -0.18F, 0.28F));
 
-        root.addOrReplaceChild("head", CubeListBuilder.create()
+        PartDefinition head = root.addOrReplaceChild("head", CubeListBuilder.create()
                         .texOffs(0, 0).addBox(-3.5F, -3.5F, -4.5F, 7.0F, 7.0F, 7.0F)
-                        .texOffs(30, 0).addBox(-2.0F, -0.4F, -8.5F, 4.0F, 3.0F, 5.0F)
-                        .texOffs(48, 0).addBox(-3.1F, -7.8F, -1.8F, 2.0F, 5.0F, 2.0F)
-                        .texOffs(58, 0).addBox(1.1F, -7.8F, -1.8F, 2.0F, 5.0F, 2.0F),
+                        .texOffs(30, 0).addBox(-2.0F, -0.4F, -8.5F, 4.0F, 3.0F, 5.0F),
                 PartPose.offset(0.0F, 11.5F, -7.0F));
+        head.addOrReplaceChild("left_ear", CubeListBuilder.create()
+                        .texOffs(48, 0).addBox(-1.0F, -5.0F, -1.0F, 2.0F, 5.0F, 2.0F),
+                PartPose.offsetAndRotation(2.1F, -3.2F, -1.4F, -0.1F, 0.0F, 0.16F));
+        head.addOrReplaceChild("right_ear", CubeListBuilder.create()
+                        .texOffs(58, 0).addBox(-1.0F, -5.0F, -1.0F, 2.0F, 5.0F, 2.0F),
+                PartPose.offsetAndRotation(-2.1F, -3.2F, -1.4F, -0.1F, 0.0F, -0.16F));
 
         PartDefinition collar = root.addOrReplaceChild("collar", CubeListBuilder.create()
                         .texOffs(80, 0).addBox(-4.5F, -1.0F, -3.5F, 9.0F, 2.0F, 7.0F,
@@ -122,26 +130,46 @@ public final class WindWolfModel extends EntityModel<SpiritBeastRenderState> {
         float walk = state.walkAnimationPos;
         float speed = Math.min(state.walkAnimationSpeed, 1.0F);
         float age = state.ageInTicks;
+        float run = state.runAmount;
+        float hurt = state.hurtTime > 0.0F ? Mth.sin(state.hurtTime * 0.9F) : 0.0F;
+        float leap = state.leapProgress;
 
         this.head.yRot = state.yRot * Mth.DEG_TO_RAD;
         this.head.xRot = state.xRot * Mth.DEG_TO_RAD + (state.aggressive ? -0.08F : 0.0F);
-        this.frontRightLeg.xRot = Mth.cos(walk * 0.72F) * 1.2F * speed;
-        this.frontLeftLeg.xRot = Mth.cos(walk * 0.72F + Mth.PI) * 1.2F * speed;
+        this.head.zRot = hurt * 0.18F;
+
+        float stride = Mth.lerp(run, 1.0F, 1.45F);
+        this.frontRightLeg.xRot = Mth.cos(walk * 0.72F) * 1.2F * speed * stride;
+        this.frontLeftLeg.xRot = Mth.cos(walk * 0.72F + Mth.PI) * 1.2F * speed * stride;
         this.backRightLeg.xRot = this.frontLeftLeg.xRot;
         this.backLeftLeg.xRot = this.frontRightLeg.xRot;
 
+        // Leaping tucks the forelegs and pushes the hind legs back.
+        if (leap > 0.05F) {
+            this.frontRightLeg.xRot -= leap * 0.55F;
+            this.frontLeftLeg.xRot -= leap * 0.55F;
+            this.backRightLeg.xRot += leap * 0.45F;
+            this.backLeftLeg.xRot += leap * 0.45F;
+        }
+
         float affinityMotion = 0.18F + state.affinity * 0.18F;
-        this.maneTop.yRot = Mth.sin(age * 0.07F) * affinityMotion;
-        this.maneLeft.yRot = 0.18F + Mth.sin(age * 0.08F + 0.8F) * affinityMotion * 0.7F;
-        this.maneRight.yRot = -0.18F - Mth.sin(age * 0.08F + 0.8F) * affinityMotion * 0.7F;
-        this.tail.yRot = Mth.sin(age * 0.09F) * (0.24F + affinityMotion);
+        this.maneTop.yRot = Mth.sin(age * 0.07F) * affinityMotion + run * 0.10F;
+        this.maneLeft.yRot = 0.18F + Mth.sin(age * 0.08F + 0.8F) * affinityMotion * 0.7F + run * 0.14F;
+        this.maneRight.yRot = -0.18F - Mth.sin(age * 0.08F + 0.8F) * affinityMotion * 0.7F - run * 0.14F;
+        this.tail.yRot = Mth.sin(age * 0.09F) * (0.24F + affinityMotion) + state.tailWag * 0.12F;
         this.tailMid.yRot = Mth.sin(age * 0.12F + 0.6F) * (0.3F + affinityMotion);
         this.tailTip.yRot = Mth.sin(age * 0.15F + 1.1F) * (0.36F + affinityMotion);
+        this.tail.xRot = 0.45F + Mth.cos(age * 0.06F) * 0.05F - run * 0.18F;
+        this.tailMid.xRot = 0.08F + Mth.sin(age * 0.07F + 0.4F) * 0.04F;
+        this.tailTip.xRot = 0.12F + Mth.sin(age * 0.08F + 0.9F) * 0.05F;
+
         float attack = Mth.sin(state.attackProgress * Mth.PI);
-        this.body.xRot = state.aggressive ? -0.06F : 0.0F;
+        this.body.xRot = (state.aggressive ? -0.06F : 0.0F) + state.breathPhase * 0.012F
+                + leap * -0.12F;
         this.head.xRot -= attack * 0.62F;
         this.frontRightLeg.xRot -= attack * 0.38F;
         this.frontLeftLeg.xRot -= attack * 0.38F;
+
         if (state.sitting) {
             this.body.xRot = 0.16F;
             this.frontRightLeg.xRot = -0.12F;
@@ -150,6 +178,22 @@ public final class WindWolfModel extends EntityModel<SpiritBeastRenderState> {
             this.backLeftLeg.xRot = -1.05F;
             this.tail.xRot = 0.95F;
         }
+
+        if (state.isInWater) {
+            float paddle = Mth.sin(age * 0.45F);
+            this.frontRightLeg.xRot = paddle * 0.55F;
+            this.frontLeftLeg.xRot = -paddle * 0.55F;
+            this.backRightLeg.xRot = -paddle * 0.5F;
+            this.backLeftLeg.xRot = paddle * 0.5F;
+            this.body.xRot = 0.06F;
+        }
+
+        // Ears flatten when hurt or aggressive, perk when alert and still.
+        float earTilt = hurt * 0.55F + (state.aggressive ? 0.18F : 0.0F);
+        this.ears[0].xRot = -0.1F - earTilt * 0.6F + Mth.sin(age * 0.11F) * 0.02F;
+        this.ears[1].xRot = this.ears[0].xRot;
+        this.ears[0].zRot = 0.16F + earTilt * 0.35F;
+        this.ears[1].zRot = -0.16F - earTilt * 0.35F;
 
         float pulse = 1.0F + Mth.sin(age * 0.2F) * (0.04F + state.affinity * 0.04F);
         this.pendant.xScale = pulse;

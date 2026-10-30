@@ -1,15 +1,14 @@
 package com.xxsx.xuanhuanearth;
 
+import com.xxsx.xuanhuanearth.particle.XuanhuanParticles;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.sounds.SoundEvents;
-import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.phys.Vec3;
 
 public final class CultivationPractice {
     public enum Support {
@@ -163,29 +162,35 @@ public final class CultivationPractice {
     }
 
     public static void emitFocusChange(ServerLevel level, BlockPos pos, CultivationFocus focus, boolean supported) {
-        var particle = switch (focus) {
-            case CIRCULATION -> ParticleTypes.END_ROD;
-            case BODY_TEMPERING -> ParticleTypes.FLAME;
-            case FETAL_BREATH -> ParticleTypes.CLOUD;
-            case BIGU -> ParticleTypes.HAPPY_VILLAGER;
-        };
-        level.sendParticles(particle,
-                pos.getX() + 0.5D, pos.getY() + (supported ? 0.55D : 1.05D), pos.getZ() + 0.5D,
-                supported ? 14 : 8, 0.42D, supported ? 0.28D : 0.45D, 0.42D, 0.02D);
+        Vec3 center = Vec3.atCenterOf(pos);
+        XuanhuanEffects.groundRing(level, center, supported ? 1.1F : 0.8F);
+        XuanhuanEffects.runeCluster(level, center, supported ? 3 : 2, 0.75D,
+                focus == CultivationFocus.CIRCULATION || focus == CultivationFocus.FETAL_BREATH);
+        level.sendParticles(switch (focus) {
+                    case CIRCULATION -> XuanhuanParticles.QI_SPARK.get();
+                    case BODY_TEMPERING -> XuanhuanParticles.EMBER_SPARK.get();
+                    case FETAL_BREATH -> XuanhuanParticles.SPIRIT_SMOKE.get();
+                    case BIGU -> XuanhuanParticles.SPIRIT_LEAF.get();
+                },
+                center.x, center.y + (supported ? 0.55D : 1.05D), center.z,
+                supported ? 10 : 6, 0.32D, supported ? 0.24D : 0.4D, 0.32D, 0.02D);
     }
 
     private static void emitPractice(ServerLevel level, BlockPos pos, CultivationFocus focus, Support support) {
-        var particle = switch (focus) {
-            case CIRCULATION -> ParticleTypes.ENCHANT;
-            case BODY_TEMPERING -> ParticleTypes.FLAME;
-            case FETAL_BREATH -> ParticleTypes.CLOUD;
-            case BIGU -> ParticleTypes.HAPPY_VILLAGER;
-        };
         boolean supported = support == Support.CUSHION;
-        level.sendParticles(particle,
-                pos.getX() + 0.5D, pos.getY() + (supported ? 0.55D : 1.0D), pos.getZ() + 0.5D,
-                supported ? 12 : 7, 0.38D, supported ? 0.26D : 0.55D, 0.38D, 0.012D);
-        level.playSound(null, pos, SoundEvents.AMETHYST_BLOCK_CHIME, SoundSource.PLAYERS,
-                supported ? 0.65F : 0.42F, supported ? 1.25F : 1.05F);
+        Vec3 center = Vec3.atCenterOf(pos);
+        XuanhuanEffects.meditationCycle(level, pos, focus, supported);
+        switch (focus) {
+            case BODY_TEMPERING -> level.sendParticles(XuanhuanParticles.SPIRIT_FLAME.get(),
+                    center.x, center.y + 0.8D, center.z, supported ? 10 : 6,
+                    0.3D, 0.25D, 0.3D, 0.015D);
+            case FETAL_BREATH -> level.sendParticles(XuanhuanParticles.SPIRIT_SMOKE.get(),
+                    center.x, center.y + 1.1D, center.z, supported ? 8 : 5,
+                    0.35D, 0.2D, 0.35D, 0.01D);
+            case BIGU -> XuanhuanEffects.leafFall(level, center.add(0.0D, 1.2D, 0.0D),
+                    supported ? 8 : 5, false);
+            default -> {
+            }
+        }
     }
 }
