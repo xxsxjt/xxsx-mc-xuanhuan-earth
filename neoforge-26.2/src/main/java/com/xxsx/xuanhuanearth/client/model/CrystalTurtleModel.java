@@ -45,66 +45,66 @@ public final class CrystalTurtleModel extends EntityModel<SpiritBeastRenderState
         root.addOrReplaceChild(
                 "body",
                 CubeListBuilder.create()
-                        .texOffs(0, 0).addBox(-4.6F, 0.0F, -4.6F, 9.2F, 2.4F, 10.2F),
-                PartPose.offset(0.0F, 19.0F, 0.0F));
+                        .texOffs(0, 0).addBox(-4.2F, 0.0F, -4.8F, 8.4F, 2.2F, 9.6F),
+                PartPose.offset(0.0F, 18.5F, 0.0F));
         PartDefinition shell = root.addOrReplaceChild(
                 "shell",
                 CubeListBuilder.create()
-                        .texOffs(21, 0).addBox(-5.0F, -3.0F, -5.0F, 10.0F, 3.6F, 11.0F)
-                        .texOffs(44, 0).addBox(-5.6F, 0.4F, -5.6F, 11.2F, 1.4F, 12.2F, new CubeDeformation(0.04F)),
-                PartPose.offset(0.0F, 16.6F, 0.0F));
+                        .texOffs(19, 0).addBox(-5.0F, -2.0F, -5.6F, 10.0F, 2.8F, 11.2F)
+                        .texOffs(42, 0).addBox(-5.6F, 0.7F, -6.2F, 11.2F, 1.2F, 12.4F, new CubeDeformation(0.04F)),
+                PartPose.offset(0.0F, 15.4F, 0.0F));
         PartDefinition shell_crystals = shell.addOrReplaceChild(
                 "crystals",
                 CubeListBuilder.create()
-                        .texOffs(69, 0).addBox(-1.2F, -5.0F, -1.2F, 2.4F, 5.0F, 2.4F),
-                PartPose.offset(0.0F, -2.8F, 0.0F));
+                        .texOffs(67, 0).addBox(-1.1F, -3.8F, -1.1F, 2.2F, 3.8F, 2.2F),
+                PartPose.offset(0.0F, -2.2F, 0.0F));
         shell_crystals.addOrReplaceChild(
                 "left_crystal",
                 CubeListBuilder.create()
-                        .texOffs(74, 0).addBox(-0.7F, -3.0F, -0.7F, 1.4F, 3.0F, 1.4F),
-                PartPose.offsetAndRotation(-2.4F, 0.4F, 1.2F, -0.2F, 0.0F, -0.42F));
+                        .texOffs(72, 0).addBox(-0.7F, -2.4F, -0.7F, 1.4F, 2.4F, 1.4F),
+                PartPose.offsetAndRotation(-2.2F, 0.4F, 1.0F, -0.2F, 0.0F, -0.42F));
         shell_crystals.addOrReplaceChild(
                 "rear_crystal",
                 CubeListBuilder.create()
-                        .texOffs(77, 0).addBox(-0.7F, -2.4F, -0.7F, 1.4F, 2.4F, 1.4F),
-                PartPose.offsetAndRotation(2.2F, 0.6F, 2.8F, 0.16F, 0.0F, 0.36F));
+                        .texOffs(75, 0).addBox(-0.7F, -2.0F, -0.7F, 1.4F, 2.0F, 1.4F),
+                PartPose.offsetAndRotation(2.0F, 0.6F, 2.4F, 0.16F, 0.0F, 0.36F));
         PartDefinition head = root.addOrReplaceChild(
                 "head",
                 CubeListBuilder.create()
-                        .texOffs(80, 0).addBox(-2.2F, -2.8F, -4.2F, 4.4F, 5.6F, 5.8F)
-                        .texOffs(91, 0).addBox(-1.2F, -1.0F, -5.4F, 2.4F, 2.2F, 1.6F)
-                        .texOffs(96, 0).addBox(-0.7F, -4.2F, -1.8F, 1.4F, 1.8F, 2.6F),
-                PartPose.offset(0.0F, 17.2F, -6.6F));
+                        .texOffs(78, 0).addBox(-2.1F, -2.6F, -3.8F, 4.2F, 5.2F, 5.2F)
+                        .texOffs(89, 0).addBox(-1.0F, -0.9F, -4.6F, 2.0F, 1.8F, 1.2F)
+                        .texOffs(94, 0).addBox(-0.6F, -3.6F, -1.2F, 1.2F, 1.4F, 2.0F),
+                PartPose.offset(0.0F, 14.6F, -7.4F));
         head.addOrReplaceChild(
                 "neck",
                 CubeListBuilder.create()
-                        .texOffs(101, 0).addBox(-2.8F, -2.2F, 0.0F, 5.6F, 4.4F, 4.2F),
-                PartPose.offset(0.0F, 1.2F, 1.0F));
+                        .texOffs(99, 0).addBox(-2.6F, -2.2F, 0.0F, 5.2F, 4.4F, 4.2F),
+                PartPose.offset(0.0F, 2.0F, 1.6F));
         root.addOrReplaceChild(
                 "front_right",
                 CubeListBuilder.create()
-                        .texOffs(112, 0).addBox(-2.8F, -1.4F, -2.4F, 5.6F, 2.8F, 4.8F),
-                PartPose.offset(-5.4F, 20.4F, -3.6F));
+                        .texOffs(110, 0).addBox(-2.4F, -1.2F, -2.2F, 4.8F, 2.6F, 4.4F),
+                PartPose.offset(-4.8F, 19.6F, -3.2F));
         root.addOrReplaceChild(
                 "front_left",
                 CubeListBuilder.create()
-                        .texOffs(0, 15).addBox(-2.8F, -1.4F, -2.4F, 5.6F, 2.8F, 4.8F),
-                PartPose.offset(5.4F, 20.4F, -3.6F));
+                        .texOffs(119, 0).addBox(-2.4F, -1.2F, -2.2F, 4.8F, 2.6F, 4.4F),
+                PartPose.offset(4.8F, 19.6F, -3.2F));
         root.addOrReplaceChild(
                 "back_right",
                 CubeListBuilder.create()
-                        .texOffs(11, 15).addBox(-2.8F, -1.4F, -2.4F, 5.6F, 2.8F, 4.8F),
-                PartPose.offset(-5.4F, 20.4F, 3.6F));
+                        .texOffs(0, 14).addBox(-2.4F, -1.2F, -2.2F, 4.8F, 2.6F, 4.4F),
+                PartPose.offset(-4.8F, 19.6F, 3.2F));
         root.addOrReplaceChild(
                 "back_left",
                 CubeListBuilder.create()
-                        .texOffs(22, 15).addBox(-2.8F, -1.4F, -2.4F, 5.6F, 2.8F, 4.8F),
-                PartPose.offset(5.4F, 20.4F, 3.6F));
+                        .texOffs(9, 14).addBox(-2.4F, -1.2F, -2.2F, 4.8F, 2.6F, 4.4F),
+                PartPose.offset(4.8F, 19.6F, 3.2F));
         root.addOrReplaceChild(
                 "tail",
                 CubeListBuilder.create()
-                        .texOffs(33, 15).addBox(-0.9F, -0.8F, 0.0F, 1.8F, 1.6F, 3.0F),
-                PartPose.offset(0.0F, 20.0F, 6.2F));
+                        .texOffs(18, 14).addBox(-0.9F, -0.8F, 0.0F, 1.8F, 1.6F, 2.8F),
+                PartPose.offset(0.0F, 19.4F, 5.6F));
 
         return LayerDefinition.create(mesh, 128, 128);
     }

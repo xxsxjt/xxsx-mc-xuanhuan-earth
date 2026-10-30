@@ -19,10 +19,12 @@ ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "tmp" / "model-views"
 
 VIEWS = {
-    "front": (0.0, 0.0),
+    # Minecraft models face -Z, and the camera looks down +Z, so the front view needs a
+    # 180 degree yaw; otherwise it silently renders the animal's back.
+    "front": (math.pi, 0.0),
     "side": (math.pi / 2, 0.0),
-    "top": (0.0, -math.pi / 2 + 0.001),
-    "iso": (2.4, 0.35),
+    "top": (math.pi, -math.pi / 2 + 0.001),
+    "iso": (math.pi * 0.78, 0.32),
 }
 
 
