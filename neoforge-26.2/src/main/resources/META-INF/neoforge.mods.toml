@@ -4,11 +4,11 @@ license="AGPL-3.0-only"
 
 [[mods]]
 modId="xuanhuan_earth"
-version="0.7.0-alpha.8"
+version="0.7.0-alpha.9"
 displayName="Xuanhuan Earth / 玄幻地球"
 logoFile="logo.png"
 description='''
-In-development beta for Minecraft 26.2 + NeoForge 26.2.0.7-beta.
+In-development beta for Minecraft 26.1.2 + NeoForge 26.1.2.124.
 Xuanhuan Earth is independently playable and adds a xuanhuan world layer:
 spiritual veins, spirit springs, talismans, alchemy vessels and formation cores.
 This build implements the first playable cultivation loop: handbook screen,
@@ -33,20 +33,22 @@ three persistent companion modes, affinity-based sealing, dedicated models and d
 Three cultivation resident roles use real merchant containers, while wandering markets,
 spirit spring villages and sect frontier outposts generate through isolated features and
 deferred settlement anchors without replacing vanilla villages or mutating vanilla mobs.
+Spirit stones now carry a persistent AEU field charge, talismans seal their charge when
+drawn, and spell graphs load from data packs so server operators can retune costs.
 '''
 authors="xxsx"
 
 [[dependencies.xuanhuan_earth]]
 modId="neoforge"
 type="required"
-versionRange="[26.2.0.7-beta,)"
+versionRange="[26.1.2.124,)"
 ordering="NONE"
 side="BOTH"
 
 [[dependencies.xuanhuan_earth]]
 modId="minecraft"
 type="required"
-versionRange="[26.2]"
+versionRange="[26.1.2]"
 ordering="NONE"
 side="BOTH"
 

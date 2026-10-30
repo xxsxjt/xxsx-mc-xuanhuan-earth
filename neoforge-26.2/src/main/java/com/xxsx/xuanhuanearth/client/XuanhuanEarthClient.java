@@ -113,7 +113,7 @@ public final class XuanhuanEarthClient {
         }
         while (ACTIVATE_TECHNIQUE.consumeClick()) {
             Minecraft minecraft = Minecraft.getInstance();
-            if (minecraft.player != null && minecraft.getConnection() != null && minecraft.gui.screen() == null) {
+            if (minecraft.player != null && minecraft.getConnection() != null && minecraft.screen == null) {
                 requestActivateTechnique();
             }
         }
@@ -122,8 +122,8 @@ public final class XuanhuanEarthClient {
     private static void handleCultivationStatus(CultivationStatusPayload payload, IPayloadContext context) {
         context.enqueueWork(() -> {
             cultivationStatus = payload;
-            if (payload.openScreen() && !(Minecraft.getInstance().gui.screen() instanceof CultivationScreen)) {
-                Minecraft.getInstance().gui.setScreen(new CultivationScreen());
+            if (payload.openScreen() && !(Minecraft.getInstance().screen instanceof CultivationScreen)) {
+                Minecraft.getInstance().setScreen(new CultivationScreen());
             }
         });
     }
@@ -164,6 +164,6 @@ public final class XuanhuanEarthClient {
         if (Minecraft.getInstance().getConnection() != null) {
             requestCultivationRefresh();
         }
-        Minecraft.getInstance().gui.setScreen(new XuanhuanHandbookScreen());
+        Minecraft.getInstance().setScreen(new XuanhuanHandbookScreen());
     }
 }

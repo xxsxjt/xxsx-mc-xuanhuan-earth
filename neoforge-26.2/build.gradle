@@ -1,16 +1,16 @@
 plugins {
     id 'java-library'
-    id 'net.neoforged.moddev' version '2.0.140'
+    id 'net.neoforged.moddev' version '2.0.148'
 }
 
-version = '0.7.0-alpha.8'
+version = '0.7.0-alpha.9'
 group = 'com.xxsx.xuanhuanearth'
-base.archivesName = 'xuanhuan-earth-neoforge-26.2'
+base.archivesName = 'xuanhuan-earth-neoforge-26.1.2'
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(25)
 
 neoForge {
-    version = '26.2.0.7-beta'
+    version = '26.1.2.124'
 
     runs {
         client {
@@ -33,12 +33,16 @@ neoForge {
 
 repositories {
     maven {
-        url = 'https://maven.blamejared.com'
+        url = uri('https://maven.blamejared.com')
+        content {
+            includeGroup 'mezz.jei'
+        }
     }
 }
 
 dependencies {
-    compileOnly 'mezz.jei:jei-26.2-neoforge-api:30.7.0.40'
+    compileOnly 'mezz.jei:jei-26.1.2-common-api:29.53.0.112'
+    compileOnly 'mezz.jei:jei-26.1.2-neoforge-api:29.53.0.112'
 }
 
 jar {

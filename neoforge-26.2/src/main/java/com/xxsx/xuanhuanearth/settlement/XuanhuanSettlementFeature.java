@@ -67,8 +67,8 @@ public final class XuanhuanSettlementFeature extends Feature<NoneFeatureConfigur
 
     private static void buildWanderingMarket(WorldGenLevel level, BlockPos center) {
         fillFloor(level, center, 4, Blocks.PACKED_MUD.defaultBlockState());
-        buildCanopy(level, center.offset(-3, 0, 0), Blocks.WOOL.green().defaultBlockState());
-        buildCanopy(level, center.offset(3, 0, 0), Blocks.WOOL.white().defaultBlockState());
+        buildCanopy(level, center.offset(-3, 0, 0), Blocks.GREEN_WOOL.defaultBlockState());
+        buildCanopy(level, center.offset(3, 0, 0), Blocks.WHITE_WOOL.defaultBlockState());
         line(level, center.offset(-1, 0, -3), 3, true, Blocks.SPRUCE_SLAB.defaultBlockState());
         level.setBlock(center.offset(0, 0, -3), Blocks.CAMPFIRE.defaultBlockState(), UPDATE_FLAGS);
         level.setBlock(center.offset(-3, 0, 2), Blocks.BARREL.defaultBlockState(), UPDATE_FLAGS);

@@ -16,7 +16,7 @@
 |---|---|---|
 | field_level | 当前区块灵气玩法标度 0–100 | ArcanaChunkField |
 | field_depletion | 当前区块枯竭标度 0–45 | ArcanaChunkField |
-| field_flux | 本次可提取的场通量（测试中取 min(field_level, 100 - depletion)） | SpiritStoneCharge 调用方 |
+| field_flux | 本次可提取的场通量，等价于 `SpiritFieldLedger.availableField(field_level, depletion)` | SpiritStoneCharge 调用方 |
 | charge_AEU | 灵石内部已储存场能 | 物品数据组件 |
 | MP | 玩家共享法力 | earth_arcana.current_mana |
 
@@ -32,13 +32,13 @@
     talisman_sealed_charge_AEU = 24.0
     0 <= charge_AEU <= capacity_AEU
 
-充能：
+充能（全部以 AEU 计价）：
 
-    field_factor = min(1, field_level / 100)
-    requested = min(field_flux_budget, capture_rate * field_factor^2)
-    field_spent = min(requested, (capacity - charge) / capture_efficiency)
-    gained = field_spent * capture_efficiency
-    loss = field_spent - gained
+    field_coupling = clamp(usable_field_levels / 100, 0, 1)
+    requested_aeu = aeu_budget * field_coupling^2
+    aeu_spent = min(requested_aeu, (capacity - charge) / capture_efficiency)
+    gained = aeu_spent * capture_efficiency
+    loss = aeu_spent - gained
     charge += gained
 
 释放：
@@ -48,7 +48,7 @@
     mana_recovered = aeu_spent * release_efficiency / AEU_PER_MANA
     charge -= aeu_spent
 
-效率必须在 0–1；多级效率相乘；输出能量不得超过输入；NaN/负数不得增加 charge 或法力。
+效率必须在 0–1；多级效率相乘；输出能量不得超过输入；NaN/负数不得增加 charge 或法力。`capture` 的输入和输出都是 AEU；调用方必须先用 `SpiritFieldLedger` 把场等级换成耦合系数或 AEU，不允许把 0–100 的场等级直接当作 AEU 传进来。
 
 ## 3.1 场等级与 AEU
 
@@ -116,13 +116,13 @@
 
 ## 8. 验收边界
 
-- 已通过：Java 编译、单元回归、JAR 资源打包、两份 `spell_graph` JSON 进入 JAR。
-- 未通过/未执行：客户端启动、进入世界、右键充放能、死亡克隆、退出重进、专用服务器多人同步、服务器数据包重载。
+- 已通过：Java 编译、单元回归、JAR 资源打包、两份 `spell_graph` JSON 进入 JAR；专用服务器在 MC 26.1.2 / NeoForge 26.1.2.124 上启动成功，日志确认 `Loaded 5 xuanhuan settlement definitions` 与 `Loaded 2 spell graph definitions`。
+- 未通过/未执行：客户端启动、进入世界、右键充放能、死亡克隆、退出重进、多人同步、运行中数据包重载与坏图拒绝路径。
 - 未完成：符文案的自动充能（目前只封存固定 24 AEU）；灵石的机器自动充能；配方级元素平衡在玄幻侧只有契约，没有运行校验。
 
 ## 9. 后续直接接手项
 
-1. 启动专用服务器，验证 `SpellGraphLoader` 的重载与坏图拒绝路径。
+1. 在客户端进入世界实测右键充放能与死亡克隆、退出重进，并用 `/reload` 验证坏图被逐条拒绝且不影响已加载的合法图。
 2. 由魔幻仓库实现同构的 JSON 图加载器与本方 `aether_*` 字段，不引用玄幻实现类。
 3. 我的地球把 294 条旧化学表映射到目录，并补配方级元素平衡。
 4. 为灵石增加自动充能设施；必须复用同一 `capture` 账本，不创建第二套公式。
