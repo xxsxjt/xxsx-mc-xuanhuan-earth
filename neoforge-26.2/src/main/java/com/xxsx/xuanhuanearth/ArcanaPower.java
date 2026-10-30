@@ -19,6 +19,8 @@ public final class ArcanaPower {
     public static final String QI_ABSORPTION_RATE = "earth_arcana.qi_absorption_rate";
     public static final String MAGIC_ATTUNEMENT_RATE = "earth_arcana.magic_attunement_rate";
     public static final String CULTIVATION_LEVEL = "earth_arcana.cultivation_level";
+    public static final String REALM = "earth_arcana.realm";
+    public static final String REALM_MANA_BONUS = "earth_arcana.realm_mana_bonus";
     public static final String MAGIC_RESEARCH_LEVEL = "earth_arcana.magic_research_level";
     public static final String FASTING_FOOD_BONUS = "earth_arcana.fasting_food_bonus";
     public static final String BREATH_CAPACITY_BONUS = "earth_arcana.breath_capacity_bonus";
@@ -92,6 +94,25 @@ public final class ArcanaPower {
 
     public static int getCultivationLevel(Player player) {
         return Math.max(0, data(player).getIntOr(CULTIVATION_LEVEL, 0));
+    }
+
+    public static int getRealm(Player player) {
+        return Math.max(0, Math.min(RealmBreakthrough.MAX_REALM,
+                data(player).getIntOr(REALM, 0)));
+    }
+
+    public static void setRealm(Player player, int realm) {
+        data(player).putInt(REALM, Math.max(0, Math.min(RealmBreakthrough.MAX_REALM, realm)));
+    }
+
+    /** Adds to the permanent realm contribution without touching the magic or equipment pools. */
+    public static void addXuanhuanManaBonus(Player player, double amount) {
+        if (!Double.isFinite(amount) || amount <= 0.0D) {
+            return;
+        }
+        CompoundTag tag = data(player);
+        tag.putDouble(XUANHUAN_MANA_BONUS,
+                Math.max(0.0D, tag.getDoubleOr(XUANHUAN_MANA_BONUS, 0.0D)) + amount);
     }
 
     public static double getQiAbsorptionRate(Player player) {

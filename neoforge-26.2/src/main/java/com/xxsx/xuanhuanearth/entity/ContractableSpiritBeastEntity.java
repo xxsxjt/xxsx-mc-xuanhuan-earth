@@ -24,6 +24,7 @@ import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.TamableAnimal;
+import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.BreedGoal;
@@ -53,14 +54,39 @@ public abstract class ContractableSpiritBeastEntity extends TamableAnimal {
             ContractableSpiritBeastEntity.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Byte> DATA_MODE = SynchedEntityData.defineId(
             ContractableSpiritBeastEntity.class, EntityDataSerializers.BYTE);
+    /** Beast cultivation rank, 1-5. Separate from affinity: trust versus training. */
+    public static final int MAX_RANK = 5;
+    private static final int[] RANK_XP = {0, 20, 55, 110, 190, 300};
+    private static final EntityDataAccessor<Integer> DATA_RANK = SynchedEntityData.defineId(
+            ContractableSpiritBeastEntity.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Integer> DATA_RANK_XP = SynchedEntityData.defineId(
+            ContractableSpiritBeastEntity.class, EntityDataSerializers.INT);
 
     private final Kind kind;
+
+    /**
+     * Unmodified attribute values, captured after construction. Rank bonuses are applied as
+     * base + rank * step, so they must start from the template rather than accumulate.
+     */
+    private double baseHealth;
+    private double baseAttack;
+    private double baseArmor;
 
     protected ContractableSpiritBeastEntity(EntityType<? extends ContractableSpiritBeastEntity> type,
                                              Level level, Kind kind) {
         super(type, level);
         this.kind = kind;
         this.setTame(false, false);
+        this.captureBaseAttributes();
+    }
+
+    private void captureBaseAttributes() {
+        AttributeInstance health = getAttribute(Attributes.MAX_HEALTH);
+        AttributeInstance attack = getAttribute(Attributes.ATTACK_DAMAGE);
+        AttributeInstance armor = getAttribute(Attributes.ARMOR);
+        this.baseHealth = health == null ? 20.0D : health.getBaseValue();
+        this.baseAttack = attack == null ? 2.0D : attack.getBaseValue();
+        this.baseArmor = armor == null ? 0.0D : armor.getBaseValue();
     }
 
     public static AttributeSupplier.Builder createAttributes(double health, double speed, double attack,
@@ -86,6 +112,8 @@ public abstract class ContractableSpiritBeastEntity extends TamableAnimal {
         super.defineSynchedData(builder);
         builder.define(DATA_AFFINITY, 0);
         builder.define(DATA_MODE, (byte) CompanionMode.FOLLOW.id());
+        builder.define(DATA_RANK, 1);
+        builder.define(DATA_RANK_XP, 0);
     }
 
     @Override
@@ -93,6 +121,8 @@ public abstract class ContractableSpiritBeastEntity extends TamableAnimal {
         super.addAdditionalSaveData(output);
         output.putInt("SpiritAffinity", getAffinity());
         output.putInt("CompanionMode", getCompanionMode().id());
+        output.putInt("BeastRank", getRank());
+        output.putInt("BeastRankXp", getRankXp());
     }
 
     @Override
@@ -100,6 +130,9 @@ public abstract class ContractableSpiritBeastEntity extends TamableAnimal {
         super.readAdditionalSaveData(input);
         setAffinity(input.getIntOr("SpiritAffinity", 0));
         setCompanionMode(CompanionMode.byId(input.getIntOr("CompanionMode", 0)));
+        setRank(input.getIntOr("BeastRank", 1));
+        setRankXp(input.getIntOr("BeastRankXp", 0));
+        applyRankAttributes();
     }
 
     @Override
@@ -164,6 +197,30 @@ public abstract class ContractableSpiritBeastEntity extends TamableAnimal {
                 return this.level().isClientSide() ? InteractionResult.SUCCESS : InteractionResult.SUCCESS_SERVER;
             }
         } else if (this.isOwnedBy(player)) {
+            // Feeding a crystal trains the beast. Grass only heals; crystals raise its rank,
+            // which is what actually makes it stronger.
+            if (stack.is(XuanhuanEarth.SPIRIT_CRYSTAL_SHARD.get()) && getRank() < MAX_RANK) {
+                if (!this.level().isClientSide()) {
+                    stack.consume(1, player);
+                    boolean promoted = addRankExperience(12);
+                    if (this.level() instanceof ServerLevel serverLevel) {
+                        XuanhuanEffects.qiRise(serverLevel,
+                                this.position().add(0.0D, this.getBbHeight() * 0.5D, 0.0D),
+                                0.7D, 12, 0.03D);
+                    }
+                    if (promoted) {
+                        player.sendSystemMessage(Component.translatable(
+                                "message.xuanhuan_earth.beast.rank_up",
+                                getDisplayName(), rankName(), getRank()));
+                    } else {
+                        player.sendSystemMessage(Component.translatable(
+                                "message.xuanhuan_earth.beast.rank_progress",
+                                getDisplayName(), rankName(),
+                                getRankXp(), getRankXpNeeded()));
+                    }
+                }
+                return this.level().isClientSide() ? InteractionResult.SUCCESS : InteractionResult.SUCCESS_SERVER;
+            }
             if (stack.is(XuanhuanEarth.SPIRIT_GRASS.get()) && getHealth() < getMaxHealth()) {
                 if (!this.level().isClientSide()) {
                     stack.consume(1, player);
@@ -240,6 +297,23 @@ public abstract class ContractableSpiritBeastEntity extends TamableAnimal {
         }
     }
 
+    @Override
+    public boolean doHurtTarget(net.minecraft.server.level.ServerLevel level,
+                                net.minecraft.world.entity.Entity target) {
+        boolean hit = super.doHurtTarget(level, target);
+        // Fighting is the other half of training, so a beast that hunts with its owner
+        // progresses without needing to be hand-fed everything.
+        if (hit && this.isTame() && getRank() < MAX_RANK && this.random.nextFloat() < 0.35F) {
+            boolean promoted = addRankExperience(3);
+            if (promoted && this.getOwner() instanceof ServerPlayer owner) {
+                owner.sendSystemMessage(Component.translatable(
+                        "message.xuanhuan_earth.beast.rank_up",
+                        getDisplayName(), rankName(), getRank()));
+            }
+        }
+        return hit;
+    }
+
     private void applyOwnerSupport(ServerPlayer owner) {
         switch (kind) {
             case SPIRIT_FOX -> owner.addEffect(new MobEffectInstance(MobEffects.NIGHT_VISION, 140, 0, true, false, true));
@@ -254,6 +328,75 @@ public abstract class ContractableSpiritBeastEntity extends TamableAnimal {
         return kind;
     }
 
+    public int getRank() {
+        return this.entityData.get(DATA_RANK);
+    }
+
+    public void setRank(int rank) {
+        this.entityData.set(DATA_RANK, Math.max(1, Math.min(MAX_RANK, rank)));
+    }
+
+    public int getRankXp() {
+        return this.entityData.get(DATA_RANK_XP);
+    }
+
+    public void setRankXp(int xp) {
+        this.entityData.set(DATA_RANK_XP, Math.max(0, xp));
+    }
+
+    public int getRankXpNeeded() {
+        int rank = getRank();
+        return rank >= MAX_RANK ? 0 : RANK_XP[rank];
+    }
+
+    /**
+     * Feeds growth experience to a contracted beast. Rank drives health, attack and armor,
+     * so a beast that is kept and used actually becomes stronger.
+     */
+    public boolean addRankExperience(int amount) {
+        if (amount <= 0 || getRank() >= MAX_RANK) {
+            return false;
+        }
+        int previous = getRank();
+        int xp = getRankXp() + amount;
+        int rank = previous;
+        while (rank < MAX_RANK && xp >= RANK_XP[rank]) {
+            xp -= RANK_XP[rank];
+            rank++;
+        }
+        setRank(rank);
+        setRankXp(rank >= MAX_RANK ? 0 : xp);
+        applyRankAttributes();
+        if (rank > previous) {
+            setHealth(getMaxHealth());
+        }
+        return rank > previous;
+    }
+
+    /** Applies the stat bonus for the current rank. Idempotent: recomputed from rank. */
+    public void applyRankAttributes() {
+        AttributeInstance health = getAttribute(Attributes.MAX_HEALTH);
+        AttributeInstance attack = getAttribute(Attributes.ATTACK_DAMAGE);
+        AttributeInstance armor = getAttribute(Attributes.ARMOR);
+        if (baseHealth <= 0.0D) {
+            captureBaseAttributes();
+        }
+        double step = getRank() - 1;
+        if (health != null) {
+            health.setBaseValue(baseHealth + step * 3.0D);
+        }
+        if (attack != null) {
+            attack.setBaseValue(baseAttack + step * 0.8D);
+        }
+        if (armor != null) {
+            armor.setBaseValue(baseArmor + step * 1.2D);
+        }
+    }
+
+    public Component rankName() {
+        return Component.translatable("beast_rank.xuanhuan_earth." + getRank());
+    }
+
     public int getAffinity() {
         return this.entityData.get(DATA_AFFINITY);
     }
@@ -264,6 +407,20 @@ public abstract class ContractableSpiritBeastEntity extends TamableAnimal {
 
     public CompanionMode getCompanionMode() {
         return CompanionMode.byId(this.entityData.get(DATA_MODE));
+    }
+
+    @Override
+    public Component getName() {
+        // Rank is part of the beast's identity: the name plate shows it so the owner can see
+        // training progress at a glance.
+        Component base = super.getName();
+        if (!this.isTame()) {
+            return base;
+        }
+        return Component.empty()
+                .append(base)
+                .append(Component.literal(" "))
+                .append(rankName());
     }
 
     public void setCompanionMode(CompanionMode mode) {

@@ -3,6 +3,7 @@ package com.xxsx.xuanhuanearth.client;
 import com.mojang.blaze3d.platform.InputConstants;
 import com.xxsx.xuanhuanearth.ArcanaPower;
 import com.xxsx.xuanhuanearth.CultivationFocus;
+import com.xxsx.xuanhuanearth.RealmBreakthrough;
 import com.xxsx.xuanhuanearth.CultivationStatusPayload;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
@@ -29,6 +30,7 @@ public class CultivationScreen extends Screen {
 
     private final Map<CultivationFocus, Button> focusButtons = new EnumMap<>(CultivationFocus.class);
     private Button primaryActionButton;
+    private Button breakthroughButton;
     private Button techniqueButton;
     private int refreshTicks;
 
@@ -56,6 +58,11 @@ public class CultivationScreen extends Screen {
                         Component.translatable("screen.xuanhuan_earth.cultivation.skill"),
                         ignored -> XuanhuanEarthClient.requestActivateTechnique())
                 .bounds(left + 10, top + panelHeight() - 50, buttonWidth, 18)
+                .build());
+        breakthroughButton = addRenderableWidget(Button.builder(
+                        Component.translatable("screen.xuanhuan_earth.cultivation.breakthrough"),
+                        ignored -> XuanhuanEarthClient.requestBreakthrough())
+                .bounds(left + 10, top + panelHeight() - 72, buttonWidth, 18)
                 .build());
         primaryActionButton = addRenderableWidget(Button.builder(
                         Component.translatable("screen.xuanhuan_earth.cultivation.practice"),
@@ -197,6 +204,15 @@ public class CultivationScreen extends Screen {
             entry.getValue().setTooltip(Tooltip.create(Component.translatable(unlocked
                     ? entry.getKey().descriptionKey()
                     : "screen.xuanhuan_earth.cultivation.focus.locked")));
+        }
+        if (breakthroughButton != null) {
+            boolean maxed = status.realm() >= RealmBreakthrough.MAX_REALM;
+            breakthroughButton.active = !maxed;
+            breakthroughButton.setMessage(Component.translatable(
+                    "screen.xuanhuan_earth.cultivation.breakthrough")
+                    .copy()
+                    .append(Component.literal("  "))
+                    .append(Component.translatable(RealmBreakthrough.realmNameKey(status.realm()))));
         }
         if (primaryActionButton != null) {
             boolean seated = status.seated();

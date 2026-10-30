@@ -47,7 +47,8 @@ public final class CultivationNetwork {
                 human.bodyIntegrity(),
                 reading.mainSourceKey(),
                 player.getVehicle() instanceof MeditationSeatEntity,
-                openScreen));
+                openScreen,
+                ArcanaPower.getRealm(player)));
     }
 
     public static void broadcastVisual(ServerPlayer player, CultivationVisualAction action) {
@@ -92,6 +93,11 @@ public final class CultivationNetwork {
             }
             if (action == CultivationActionPayload.ACTIVATE_SKILL) {
                 CultivationSkill.activate(level, player);
+                sync(player, pos, false);
+                return;
+            }
+            if (action == CultivationActionPayload.BREAKTHROUGH) {
+                RealmBreakthrough.attempt(level, player);
                 sync(player, pos, false);
                 return;
             }

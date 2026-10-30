@@ -172,4 +172,48 @@ public final class XuanhuanEffects {
                     origin.x, origin.y + 0.6D, origin.z, 2, 0.25D, 0.2D, 0.25D, 0.01D);
         }
     }
+
+    /** Implement cast: a colour-coded burst matching the implement's element. */
+    public static void implementCast(ServerLevel level, Vec3 origin,
+                                     SpiritImplementItem.Implement kind) {
+        groundRing(level, origin, 1.3F);
+        switch (kind) {
+            case WIND_FAN -> {
+                level.sendParticles(XuanhuanParticles.WIND_RING.get(),
+                        origin.x, origin.y + 0.4D, origin.z, 1, 0.0D, 0.0D, 0.0D, 0.0D);
+                sparkBurst(level, origin.add(0.0D, 0.8D, 0.0D), 16, 0.14D);
+            }
+            case STONE_SEAL -> {
+                runeCluster(level, origin, 4, 1.0D, false);
+                level.sendParticles(XuanhuanParticles.EMBER_SPARK.get(),
+                        origin.x, origin.y + 0.6D, origin.z, 12, 0.4D, 0.3D, 0.4D, 0.02D);
+            }
+            case GATHER_ORB -> qiRise(level, origin, 1.1D, 18, 0.03D);
+            case LANTERN_ROD -> {
+                runeCluster(level, origin, 3, 0.9D, true);
+                level.sendParticles(XuanhuanParticles.QI_SPARK.get(),
+                        origin.x, origin.y + 1.2D, origin.z, 10, 0.5D, 0.4D, 0.5D, 0.02D);
+            }
+        }
+    }
+
+    /** Pill swallowed: a small upward puff plus a jade ring at the feet. */
+    public static void pillBurst(ServerLevel level, Vec3 origin) {
+        groundRing(level, origin, 0.8F);
+        qiRise(level, origin, 0.5D, 8, 0.02D);
+        level.sendParticles(XuanhuanParticles.QI_SPARK.get(), origin.x, origin.y + 0.9D, origin.z,
+                6, 0.25D, 0.2D, 0.25D, 0.02D);
+    }
+
+    /** Realm breakthrough: a large, slow, multi-stage effect. */
+    public static void realmBreakthrough(ServerLevel level, Vec3 origin) {
+        for (int i = 0; i < 3; i++) {
+            groundRing(level, origin, 1.2F + i * 0.7F);
+        }
+        qiRise(level, origin, 1.6D, 30, 0.05D);
+        runeCluster(level, origin, 8, 1.6D, true);
+        sparkBurst(level, origin.add(0.0D, 1.2D, 0.0D), 28, 0.18D);
+        level.sendParticles(XuanhuanParticles.SPIRIT_FLAME.get(),
+                origin.x, origin.y + 1.0D, origin.z, 20, 0.7D, 0.9D, 0.7D, 0.03D);
+    }
 }

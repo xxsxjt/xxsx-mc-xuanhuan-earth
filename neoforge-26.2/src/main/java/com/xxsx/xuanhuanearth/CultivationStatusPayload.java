@@ -22,7 +22,8 @@ public record CultivationStatusPayload(
         double bodyIntegrity,
         String sourceKey,
         boolean seated,
-        boolean openScreen) implements CustomPacketPayload {
+        boolean openScreen,
+        int realm) implements CustomPacketPayload {
     public static final Type<CultivationStatusPayload> TYPE =
             new Type<>(XuanhuanEarth.id("cultivation_status"));
     public static final StreamCodec<RegistryFriendlyByteBuf, CultivationStatusPayload> CODEC =
@@ -34,7 +35,7 @@ public record CultivationStatusPayload(
                             buf.readVarInt(), buf.readVarInt(), buf.readVarInt(), buf.readVarInt(),
                             buf.readVarInt(), buf.readVarInt(), buf.readVarInt(), buf.readVarInt(),
                             buf.readBoolean(),
-                            buf.readDouble(), buf.readDouble(), buf.readUtf(), buf.readBoolean(), buf.readBoolean());
+                            buf.readDouble(), buf.readDouble(), buf.readUtf(), buf.readBoolean(), buf.readBoolean(), buf.readVarInt());
                 }
 
                 @Override
@@ -57,13 +58,14 @@ public record CultivationStatusPayload(
                     buf.writeUtf(payload.sourceKey());
                     buf.writeBoolean(payload.seated());
                     buf.writeBoolean(payload.openScreen());
+                    buf.writeVarInt(payload.realm());
                 }
             };
 
     public static CultivationStatusPayload empty() {
         return new CultivationStatusPayload(0.0D, 20.0D, 0, 0.0D, 0,
                 CultivationFocus.CIRCULATION.id(), 0, 0, 0, 0, 0, 0, false, 0.0D, 1.0D,
-                "spirituality.xuanhuan_earth.source.natural", false, false);
+                "spirituality.xuanhuan_earth.source.natural", false, false, 0);
     }
 
     public boolean isUnlocked(CultivationFocus focus) {

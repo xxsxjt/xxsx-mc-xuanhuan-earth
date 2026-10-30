@@ -11,6 +11,7 @@ public record CultivationActionPayload(int focusId) implements CustomPacketPaylo
     public static final int PRACTICE = -3;
     public static final int REFRESH_STATUS = -4;
     public static final int ACTIVATE_SKILL = -5;
+    public static final int BREAKTHROUGH = -6;
     public static final Type<CultivationActionPayload> TYPE =
             new Type<>(XuanhuanEarth.id("cultivation_action"));
     public static final StreamCodec<RegistryFriendlyByteBuf, CultivationActionPayload> CODEC = StreamCodec.composite(

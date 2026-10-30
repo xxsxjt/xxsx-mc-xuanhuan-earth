@@ -155,6 +155,11 @@ public final class XuanhuanEarthClient {
         ClientPacketDistributor.sendToServer(new CultivationActionPayload(CultivationActionPayload.PRACTICE));
     }
 
+    public static void requestBreakthrough() {
+        ClientPacketDistributor.sendToServer(
+                new CultivationActionPayload(CultivationActionPayload.BREAKTHROUGH));
+    }
+
     public static void requestActivateTechnique() {
         ClientPacketDistributor.sendToServer(new CultivationActionPayload(CultivationActionPayload.ACTIVATE_SKILL));
     }

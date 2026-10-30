@@ -189,6 +189,26 @@ public class XuanhuanEarth {
     public static final DeferredItem<GuidedXuanhuanItem> SPIRIT_IRON_BLANK = material("spirit_iron_blank", "tooltip.xuanhuan_earth.spirit_iron_blank");
     public static final DeferredItem<QiRecoveryPillItem> QI_RECOVERY_PILL = item("qi_recovery_pill",
             props -> new QiRecoveryPillItem(props, "tooltip.xuanhuan_earth.qi_recovery_pill"));
+    public static final DeferredItem<XuanhuanPillItem> FOUNDATION_PILL = pill(XuanhuanPills.FOUNDATION);
+    public static final DeferredItem<XuanhuanPillItem> IRONBODY_PILL = pill(XuanhuanPills.IRONBODY);
+    public static final DeferredItem<XuanhuanPillItem> CLOUDBREATH_PILL = pill(XuanhuanPills.CLOUDBREATH);
+    public static final DeferredItem<XuanhuanPillItem> GRAINFAST_PILL = pill(XuanhuanPills.GRAINFAST);
+    public static final DeferredItem<XuanhuanPillItem> BREAKTHROUGH_PILL = pill(XuanhuanPills.BREAKTHROUGH);
+    public static final DeferredItem<XuanhuanPillItem> NIGHTSIGHT_PILL = pill(XuanhuanPills.NIGHTSIGHT);
+    public static final DeferredHolder<net.minecraft.core.component.DataComponentType<?>,
+            net.minecraft.core.component.DataComponentType<ImplementComponent>> IMPLEMENT_CHARGE =
+            DATA_COMPONENTS.registerComponentType("implement_charge", builder -> builder
+                    .persistent(ImplementComponent.CODEC)
+                    .networkSynchronized(net.minecraft.network.codec.ByteBufCodecs.fromCodec(
+                            ImplementComponent.CODEC)));
+    public static final DeferredItem<SpiritImplementItem> WIND_FAN =
+            implement(SpiritImplementItem.Implement.WIND_FAN);
+    public static final DeferredItem<SpiritImplementItem> STONE_SEAL =
+            implement(SpiritImplementItem.Implement.STONE_SEAL);
+    public static final DeferredItem<SpiritImplementItem> GATHER_ORB =
+            implement(SpiritImplementItem.Implement.GATHER_ORB);
+    public static final DeferredItem<SpiritImplementItem> LANTERN_ROD =
+            implement(SpiritImplementItem.Implement.LANTERN_ROD);
     public static final DeferredItem<GuidedXuanhuanItem> SPIRIT_BEAST_SEAL = material(
             "spirit_beast_seal", "tooltip.xuanhuan_earth.spirit_beast_seal");
     public static final DeferredItem<SpawnEggItem> SPIRIT_FOX_SPAWN_EGG = item("spirit_fox_spawn_egg",
@@ -286,6 +306,14 @@ public class XuanhuanEarth {
 
     private static DeferredItem<GuidedXuanhuanItem> material(String id, String hintKey) {
         return item(id, props -> new GuidedXuanhuanItem(props, hintKey));
+    }
+
+    private static DeferredItem<SpiritImplementItem> implement(SpiritImplementItem.Implement kind) {
+        return item(kind.id(), props -> new SpiritImplementItem(props.stacksTo(1), kind.hintKey(), kind));
+    }
+
+    private static DeferredItem<XuanhuanPillItem> pill(XuanhuanPillItem.Pill pill) {
+        return item(pill.id(), props -> new XuanhuanPillItem(props, pill.hintKey(), pill));
     }
 
     private static <T extends Item> DeferredItem<T> item(String id, Function<Item.Properties, T> factory) {
