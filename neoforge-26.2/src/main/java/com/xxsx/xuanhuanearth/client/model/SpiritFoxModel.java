@@ -20,7 +20,8 @@ public final class SpiritFoxModel extends EntityModel<SpiritFoxRenderState> {
 
     private final ModelPart head;
     private final ModelPart crest;
-    private final ModelPart snout;
+    private final ModelPart muzzle;
+    private final ModelPart jaw;
     private final ModelPart body;
     private final ModelPart frontRightLeg;
     private final ModelPart frontLeftLeg;
@@ -35,12 +36,13 @@ public final class SpiritFoxModel extends EntityModel<SpiritFoxRenderState> {
         super(root, RenderTypes::entityCutout);
         this.head = root.getChild("head");
         this.crest = this.head.getChild("crest");
-        this.snout = this.head.getChild("snout");
+        this.muzzle = this.head.getChild("muzzle");
+        this.jaw = this.head.getChild("jaw");
         this.body = root.getChild("body");
-        this.frontRightLeg = root.getChild("front_right_leg");
-        this.frontLeftLeg = root.getChild("front_left_leg");
-        this.backRightLeg = root.getChild("back_right_leg");
-        this.backLeftLeg = root.getChild("back_left_leg");
+        this.frontRightLeg = root.getChild("front_right");
+        this.frontLeftLeg = root.getChild("front_left");
+        this.backRightLeg = root.getChild("back_right");
+        this.backLeftLeg = root.getChild("back_left");
         this.tail = root.getChild("tail");
         this.tailMid = this.tail.getChild("tail_mid");
         this.tailTip = this.tailMid.getChild("tail_tip");
@@ -50,66 +52,92 @@ public final class SpiritFoxModel extends EntityModel<SpiritFoxRenderState> {
     public static LayerDefinition createBodyLayer() {
         MeshDefinition mesh = new MeshDefinition();
         PartDefinition root = mesh.getRoot();
-
-        root.addOrReplaceChild("body",
+        root.addOrReplaceChild(
+                "body",
                 CubeListBuilder.create()
-                        .texOffs(0, 18).addBox(-4.0F, -4.0F, -6.0F, 8.0F, 8.0F, 12.0F)
-                        .texOffs(40, 22).addBox(-3.5F, -4.6F, -5.0F, 7.0F, 1.0F, 9.0F,
-                                new CubeDeformation(0.08F)),
-                PartPose.offset(0.0F, 15.0F, 0.0F));
-
-        PartDefinition head = root.addOrReplaceChild("head",
+                        .texOffs(0, 0).addBox(-3.4F, -3.4F, -5.0F, 6.8F, 6.8F, 10.0F)
+                        .texOffs(21, 0).addBox(-2.8F, -4.0F, -4.2F, 5.6F, 1.0F, 8.4F, new CubeDeformation(0.05F))
+                        .texOffs(38, 0).addBox(-3.0F, 3.0F, -4.0F, 6.0F, 1.0F, 8.0F, new CubeDeformation(0.04F)),
+                PartPose.offset(0.0F, 12.4F, 0.0F));
+        root.addOrReplaceChild(
+                "neck",
                 CubeListBuilder.create()
-                        .texOffs(0, 0).addBox(-4.0F, -4.0F, -5.0F, 8.0F, 7.0F, 7.0F),
-                PartPose.offset(0.0F, 12.5F, -6.0F));
-
-        head.addOrReplaceChild("snout",
+                        .texOffs(55, 0).addBox(-2.4F, -2.4F, -2.2F, 4.8F, 4.8F, 4.4F),
+                PartPose.offsetAndRotation(0.0F, 11.6F, -4.4F, 0.32F, 0.0F, 0.0F));
+        PartDefinition head = root.addOrReplaceChild(
+                "head",
                 CubeListBuilder.create()
-                        .texOffs(30, 0).addBox(-2.0F, -0.5F, -4.0F, 4.0F, 3.0F, 4.0F),
-                PartPose.offset(0.0F, 0.0F, 0.0F));
-
-        head.addOrReplaceChild("left_ear",
-                CubeListBuilder.create().texOffs(46, 0)
-                        .addBox(-1.5F, -4.0F, -1.0F, 3.0F, 4.0F, 2.0F),
-                PartPose.offsetAndRotation(2.2F, -3.4F, -1.4F, -0.08F, 0.0F, 0.12F));
-        head.addOrReplaceChild("right_ear",
-                CubeListBuilder.create().texOffs(56, 0)
-                        .addBox(-1.5F, -4.0F, -1.0F, 3.0F, 4.0F, 2.0F),
-                PartPose.offsetAndRotation(-2.2F, -3.4F, -1.4F, -0.08F, 0.0F, -0.12F));
-
-        head.addOrReplaceChild("crest",
-                CubeListBuilder.create().texOffs(48, 8)
-                        .addBox(-1.0F, -4.0F, -1.0F, 2.0F, 4.0F, 2.0F),
-                PartPose.offset(0.0F, -4.0F, -2.0F));
-
-        root.addOrReplaceChild("front_right_leg",
-                CubeListBuilder.create().texOffs(0, 40).addBox(-1.5F, 0.0F, -1.5F, 3.0F, 6.0F, 3.0F),
-                PartPose.offset(-2.4F, 18.0F, -4.0F));
-        root.addOrReplaceChild("front_left_leg",
-                CubeListBuilder.create().texOffs(12, 40).addBox(-1.5F, 0.0F, -1.5F, 3.0F, 6.0F, 3.0F),
-                PartPose.offset(2.4F, 18.0F, -4.0F));
-        root.addOrReplaceChild("back_right_leg",
-                CubeListBuilder.create().texOffs(24, 40).addBox(-1.7F, 0.0F, -1.7F, 3.0F, 6.0F, 4.0F),
-                PartPose.offset(-2.4F, 18.0F, 4.0F));
-        root.addOrReplaceChild("back_left_leg",
-                CubeListBuilder.create().texOffs(38, 40).addBox(-1.3F, 0.0F, -1.7F, 3.0F, 6.0F, 4.0F),
-                PartPose.offset(2.4F, 18.0F, 4.0F));
-
-        PartDefinition tail = root.addOrReplaceChild("tail",
+                        .texOffs(64, 0).addBox(-3.0F, -3.0F, -3.0F, 6.0F, 6.0F, 6.0F),
+                PartPose.offset(0.0F, 10.2F, -6.4F));
+        head.addOrReplaceChild(
+                "muzzle",
                 CubeListBuilder.create()
-                        .texOffs(0, 50).addBox(-3.0F, -3.0F, 0.0F, 6.0F, 6.0F, 8.0F),
-                PartPose.offsetAndRotation(0.0F, 14.5F, 5.0F, 0.42F, 0.0F, 0.0F));
-        PartDefinition tailMid = tail.addOrReplaceChild("tail_mid",
+                        .texOffs(77, 0).addBox(-1.8F, -1.0F, -3.4F, 3.6F, 2.8F, 3.4F)
+                        .texOffs(84, 0).addBox(-0.9F, 0.2F, -4.4F, 1.8F, 1.4F, 1.0F),
+                PartPose.offset(0.0F, 0.6F, -3.4F));
+        head.addOrReplaceChild(
+                "jaw",
                 CubeListBuilder.create()
-                        .texOffs(28, 50).addBox(-3.4F, -3.4F, 0.0F, 7.0F, 7.0F, 7.0F),
-                PartPose.offsetAndRotation(0.0F, 0.0F, 7.2F, 0.06F, 0.0F, 0.0F));
-        tailMid.addOrReplaceChild("tail_tip",
+                        .texOffs(87, 0).addBox(-1.6F, 0.0F, -2.6F, 3.2F, 1.0F, 2.6F),
+                PartPose.offset(0.0F, 2.2F, -3.0F));
+        head.addOrReplaceChild(
+                "left_ear",
                 CubeListBuilder.create()
-                        .texOffs(56, 50).addBox(-2.6F, -2.6F, 0.0F, 5.0F, 5.0F, 6.0F,
-                                new CubeDeformation(0.06F)),
-                PartPose.offsetAndRotation(0.0F, 0.0F, 6.4F, 0.08F, 0.0F, 0.0F));
+                        .texOffs(94, 0).addBox(-1.3F, -4.0F, -0.9F, 2.6F, 4.0F, 1.8F)
+                        .texOffs(99, 0).addBox(-0.8F, -3.2F, -1.1F, 1.6F, 2.8F, 1.0F),
+                PartPose.offsetAndRotation(1.9F, -3.0F, -0.6F, -0.1F, 0.0F, 0.14F));
+        head.addOrReplaceChild(
+                "right_ear",
+                CubeListBuilder.create()
+                        .texOffs(102, 0).addBox(-1.3F, -4.0F, -0.9F, 2.6F, 4.0F, 1.8F)
+                        .texOffs(107, 0).addBox(-0.8F, -3.2F, -1.1F, 1.6F, 2.8F, 1.0F),
+                PartPose.offsetAndRotation(-1.9F, -3.0F, -0.6F, -0.1F, 0.0F, -0.14F));
+        head.addOrReplaceChild(
+                "crest",
+                CubeListBuilder.create()
+                        .texOffs(110, 0).addBox(-0.9F, -3.6F, -0.9F, 1.8F, 3.6F, 1.8F),
+                PartPose.offset(0.0F, -3.2F, -1.6F));
+        root.addOrReplaceChild(
+                "front_right",
+                CubeListBuilder.create()
+                        .texOffs(113, 0).addBox(-1.1F, 0.0F, -1.1F, 2.2F, 6.0F, 2.2F)
+                        .texOffs(118, 0).addBox(-1.3F, 5.8F, -1.8F, 2.6F, 1.4F, 3.0F),
+                PartPose.offset(-2.2F, 16.0F, -3.4F));
+        root.addOrReplaceChild(
+                "front_left",
+                CubeListBuilder.create()
+                        .texOffs(0, 17).addBox(-1.1F, 0.0F, -1.1F, 2.2F, 6.0F, 2.2F)
+                        .texOffs(5, 17).addBox(-1.3F, 5.8F, -1.8F, 2.6F, 1.4F, 3.0F),
+                PartPose.offset(2.2F, 16.0F, -3.4F));
+        root.addOrReplaceChild(
+                "back_right",
+                CubeListBuilder.create()
+                        .texOffs(12, 17).addBox(-1.1F, 0.0F, -1.1F, 2.2F, 6.0F, 2.2F)
+                        .texOffs(17, 17).addBox(-1.3F, 5.8F, -1.8F, 2.6F, 1.4F, 3.0F),
+                PartPose.offset(-2.2F, 16.0F, 3.4F));
+        root.addOrReplaceChild(
+                "back_left",
+                CubeListBuilder.create()
+                        .texOffs(24, 17).addBox(-1.1F, 0.0F, -1.1F, 2.2F, 6.0F, 2.2F)
+                        .texOffs(29, 17).addBox(-1.3F, 5.8F, -1.8F, 2.6F, 1.4F, 3.0F),
+                PartPose.offset(2.2F, 16.0F, 3.4F));
+        PartDefinition tail = root.addOrReplaceChild(
+                "tail",
+                CubeListBuilder.create()
+                        .texOffs(36, 17).addBox(-2.4F, -2.4F, 0.0F, 4.8F, 4.8F, 6.0F),
+                PartPose.offsetAndRotation(0.0F, 11.4F, 4.6F, 0.3F, 0.0F, 0.0F));
+        PartDefinition tail_tail_mid = tail.addOrReplaceChild(
+                "tail_mid",
+                CubeListBuilder.create()
+                        .texOffs(49, 17).addBox(-2.8F, -2.8F, 0.0F, 5.6F, 5.6F, 5.4F),
+                PartPose.offsetAndRotation(0.0F, 0.0F, 5.6F, 0.1F, 0.0F, 0.0F));
+        tail_tail_mid.addOrReplaceChild(
+                "tail_tip",
+                CubeListBuilder.create()
+                        .texOffs(60, 17).addBox(-2.2F, -2.2F, 0.0F, 4.4F, 4.4F, 4.6F),
+                PartPose.offsetAndRotation(0.0F, 0.0F, 5.0F, 0.1F, 0.0F, 0.0F));
 
-        return LayerDefinition.create(mesh, 80, 80);
+        return LayerDefinition.create(mesh, 128, 128);
     }
 
     @Override
@@ -125,7 +153,7 @@ public final class SpiritFoxModel extends EntityModel<SpiritFoxRenderState> {
         this.head.yRot = state.yRot * Mth.DEG_TO_RAD;
         this.head.xRot = state.xRot * Mth.DEG_TO_RAD;
         this.head.zRot = hurt * 0.2F;
-        this.body.xRot = Mth.sin(age * 0.055F) * 0.025F + state.breathPhase * 0.012F - leap * 0.14F;
+        this.body.xRot = Mth.sin(age * 0.055F) * 0.022F + state.breathPhase * 0.012F - leap * 0.14F;
 
         float stride = Mth.lerp(run, 1.0F, 1.4F);
         this.frontRightLeg.xRot = Mth.cos(walk * 0.6662F) * 1.15F * speed * stride;
@@ -140,8 +168,7 @@ public final class SpiritFoxModel extends EntityModel<SpiritFoxRenderState> {
             this.backLeftLeg.xRot += leap * 0.4F;
         }
 
-        float wag = state.tailWag;
-        this.tail.yRot = Mth.sin(age * 0.085F) * (0.24F + state.spiritAffinity * 0.12F) + wag * 0.10F;
+        this.tail.yRot = Mth.sin(age * 0.085F) * (0.24F + state.spiritAffinity * 0.12F) + state.tailWag * 0.10F;
         this.tail.xRot = 0.42F + Mth.cos(age * 0.07F) * 0.08F - run * 0.16F;
         this.tailMid.yRot = Mth.sin(age * 0.11F + 0.5F) * (0.18F + state.spiritAffinity * 0.1F);
         this.tailMid.xRot = 0.06F + Mth.sin(age * 0.09F + 0.4F) * 0.05F;
@@ -153,6 +180,8 @@ public final class SpiritFoxModel extends EntityModel<SpiritFoxRenderState> {
         this.body.xRot -= attack * 0.12F;
         this.frontRightLeg.xRot -= attack * 0.42F;
         this.frontLeftLeg.xRot -= attack * 0.42F;
+        this.jaw.xRot = attack * 0.55F + (state.aggressive ? 0.12F : 0.0F);
+        this.muzzle.xRot = attack * 0.10F;
 
         if (state.sitting) {
             this.body.xRot = 0.18F;
@@ -177,8 +206,6 @@ public final class SpiritFoxModel extends EntityModel<SpiritFoxRenderState> {
         this.ears[1].xRot = this.ears[0].xRot;
         this.ears[0].zRot = 0.12F + earTilt * 0.4F;
         this.ears[1].zRot = -0.12F - earTilt * 0.4F;
-
-        this.snout.xRot = state.aggressive ? -0.06F : 0.0F;
 
         float pulse = 1.0F + Mth.sin(age * 0.18F) * (0.05F + state.spiritAffinity * 0.05F);
         this.crest.xScale = pulse;

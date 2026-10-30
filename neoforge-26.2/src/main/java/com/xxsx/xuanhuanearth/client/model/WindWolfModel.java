@@ -19,7 +19,9 @@ public final class WindWolfModel extends EntityModel<SpiritBeastRenderState> {
             XuanhuanEarth.id("wind_wolf"), "main");
 
     private final ModelPart head;
+    private final ModelPart snout;
     private final ModelPart body;
+    private final ModelPart mane;
     private final ModelPart maneTop;
     private final ModelPart maneLeft;
     private final ModelPart maneRight;
@@ -36,16 +38,17 @@ public final class WindWolfModel extends EntityModel<SpiritBeastRenderState> {
     public WindWolfModel(ModelPart root) {
         super(root, RenderTypes::entityCutout);
         this.head = root.getChild("head");
+        this.snout = this.head.getChild("snout");
         this.body = root.getChild("body");
-        ModelPart mane = root.getChild("mane");
-        this.maneTop = mane.getChild("mane_top");
-        this.maneLeft = mane.getChild("mane_left");
-        this.maneRight = mane.getChild("mane_right");
+        this.mane = root.getChild("mane");
+        this.maneTop = this.mane.getChild("mane_top");
+        this.maneLeft = this.mane.getChild("mane_left");
+        this.maneRight = this.mane.getChild("mane_right");
         this.pendant = root.getChild("collar").getChild("pendant");
-        this.frontRightLeg = root.getChild("front_right_leg");
-        this.frontLeftLeg = root.getChild("front_left_leg");
-        this.backRightLeg = root.getChild("back_right_leg");
-        this.backLeftLeg = root.getChild("back_left_leg");
+        this.frontRightLeg = root.getChild("front_right");
+        this.frontLeftLeg = root.getChild("front_left");
+        this.backRightLeg = root.getChild("back_right");
+        this.backLeftLeg = root.getChild("back_left");
         this.tail = root.getChild("tail");
         this.tailMid = this.tail.getChild("tail_mid");
         this.tailTip = this.tailMid.getChild("tail_tip");
@@ -55,73 +58,105 @@ public final class WindWolfModel extends EntityModel<SpiritBeastRenderState> {
     public static LayerDefinition createBodyLayer() {
         MeshDefinition mesh = new MeshDefinition();
         PartDefinition root = mesh.getRoot();
-
-        root.addOrReplaceChild("body", CubeListBuilder.create()
-                        .texOffs(0, 24).addBox(-4.0F, -4.0F, -7.0F, 8.0F, 8.0F, 14.0F)
-                        .texOffs(0, 46).addBox(-3.5F, -4.6F, -6.2F, 7.0F, 1.0F, 12.0F,
-                                new CubeDeformation(0.06F)),
+        root.addOrReplaceChild(
+                "body",
+                CubeListBuilder.create()
+                        .texOffs(0, 0).addBox(-4.0F, -4.0F, -7.0F, 8.0F, 8.0F, 14.0F)
+                        .texOffs(29, 0).addBox(-3.4F, -4.8F, -6.2F, 6.8F, 1.0F, 12.4F, new CubeDeformation(0.05F))
+                        .texOffs(54, 0).addBox(-3.6F, 2.6F, -6.6F, 7.2F, 2.0F, 5.0F, new CubeDeformation(0.06F)),
                 PartPose.offset(0.0F, 14.0F, 0.0F));
-
-        PartDefinition mane = root.addOrReplaceChild("mane", CubeListBuilder.create()
-                        .texOffs(48, 20).addBox(-4.5F, -5.0F, -3.0F, 9.0F, 10.0F, 6.0F,
-                                new CubeDeformation(0.12F)),
+        PartDefinition mane = root.addOrReplaceChild(
+                "mane",
+                CubeListBuilder.create()
+                        .texOffs(69, 0).addBox(-4.6F, -5.2F, -3.0F, 9.2F, 10.4F, 6.0F, new CubeDeformation(0.1F)),
                 PartPose.offset(0.0F, 14.0F, -5.5F));
-        mane.addOrReplaceChild("mane_top", CubeListBuilder.create()
-                        .texOffs(80, 24).addBox(-1.5F, -1.5F, 0.0F, 3.0F, 3.0F, 9.0F),
+        mane.addOrReplaceChild(
+                "mane_top",
+                CubeListBuilder.create()
+                        .texOffs(88, 0).addBox(-1.5F, -1.5F, 0.0F, 3.0F, 3.0F, 9.0F),
                 PartPose.offsetAndRotation(0.0F, -4.7F, -0.5F, -0.18F, 0.0F, 0.0F));
-        mane.addOrReplaceChild("mane_left", CubeListBuilder.create()
-                        .texOffs(104, 24).addBox(-2.0F, -2.0F, 0.0F, 2.0F, 4.0F, 8.0F),
+        mane.addOrReplaceChild(
+                "mane_left",
+                CubeListBuilder.create()
+                        .texOffs(107, 0).addBox(-2.0F, -2.0F, 0.0F, 2.0F, 4.0F, 8.0F),
                 PartPose.offsetAndRotation(-3.7F, -1.0F, 0.0F, -0.1F, 0.18F, -0.28F));
-        mane.addOrReplaceChild("mane_right", CubeListBuilder.create()
-                        .texOffs(104, 40).addBox(0.0F, -2.0F, 0.0F, 2.0F, 4.0F, 8.0F),
+        mane.addOrReplaceChild(
+                "mane_right",
+                CubeListBuilder.create()
+                        .texOffs(0, 23).addBox(0.0F, -2.0F, 0.0F, 2.0F, 4.0F, 8.0F),
                 PartPose.offsetAndRotation(3.7F, -1.0F, 0.0F, -0.1F, -0.18F, 0.28F));
-
-        PartDefinition head = root.addOrReplaceChild("head", CubeListBuilder.create()
-                        .texOffs(0, 0).addBox(-3.5F, -3.5F, -4.5F, 7.0F, 7.0F, 7.0F)
-                        .texOffs(30, 0).addBox(-2.0F, -0.4F, -8.5F, 4.0F, 3.0F, 5.0F),
+        PartDefinition head = root.addOrReplaceChild(
+                "head",
+                CubeListBuilder.create()
+                        .texOffs(17, 23).addBox(-3.5F, -3.5F, -4.5F, 7.0F, 7.0F, 7.0F),
                 PartPose.offset(0.0F, 11.5F, -7.0F));
-        head.addOrReplaceChild("left_ear", CubeListBuilder.create()
-                        .texOffs(48, 0).addBox(-1.0F, -5.0F, -1.0F, 2.0F, 5.0F, 2.0F),
+        head.addOrReplaceChild(
+                "snout",
+                CubeListBuilder.create()
+                        .texOffs(32, 23).addBox(-2.0F, -0.6F, -4.0F, 4.0F, 3.2F, 4.0F)
+                        .texOffs(41, 23).addBox(-1.0F, 0.2F, -5.0F, 2.0F, 1.4F, 1.0F),
+                PartPose.offset(0.0F, 0.0F, -4.5F));
+        head.addOrReplaceChild(
+                "left_ear",
+                CubeListBuilder.create()
+                        .texOffs(46, 23).addBox(-1.0F, -5.2F, -1.0F, 2.0F, 5.2F, 2.0F),
                 PartPose.offsetAndRotation(2.1F, -3.2F, -1.4F, -0.1F, 0.0F, 0.16F));
-        head.addOrReplaceChild("right_ear", CubeListBuilder.create()
-                        .texOffs(58, 0).addBox(-1.0F, -5.0F, -1.0F, 2.0F, 5.0F, 2.0F),
+        head.addOrReplaceChild(
+                "right_ear",
+                CubeListBuilder.create()
+                        .texOffs(51, 23).addBox(-1.0F, -5.2F, -1.0F, 2.0F, 5.2F, 2.0F),
                 PartPose.offsetAndRotation(-2.1F, -3.2F, -1.4F, -0.1F, 0.0F, -0.16F));
-
-        PartDefinition collar = root.addOrReplaceChild("collar", CubeListBuilder.create()
-                        .texOffs(80, 0).addBox(-4.5F, -1.0F, -3.5F, 9.0F, 2.0F, 7.0F,
-                                new CubeDeformation(0.08F)),
+        PartDefinition collar = root.addOrReplaceChild(
+                "collar",
+                CubeListBuilder.create()
+                        .texOffs(56, 23).addBox(-4.6F, -1.0F, -3.6F, 9.2F, 2.0F, 7.2F, new CubeDeformation(0.06F)),
                 PartPose.offset(0.0F, 14.0F, -5.5F));
-        collar.addOrReplaceChild("pendant", CubeListBuilder.create()
-                        .texOffs(104, 0).addBox(-1.5F, -0.5F, -0.5F, 3.0F, 4.0F, 1.0F),
+        collar.addOrReplaceChild(
+                "pendant",
+                CubeListBuilder.create()
+                        .texOffs(75, 23).addBox(-1.5F, -0.5F, -0.5F, 3.0F, 4.0F, 1.0F),
                 PartPose.offset(0.0F, 1.0F, -4.0F));
-
-        leg(root, "front_right_leg", 0, -2.7F, -4.7F);
-        leg(root, "front_left_leg", 1, 2.7F, -4.7F);
-        leg(root, "back_right_leg", 2, -2.7F, 4.7F);
-        leg(root, "back_left_leg", 3, 2.7F, 4.7F);
-
-        PartDefinition tail = root.addOrReplaceChild("tail", CubeListBuilder.create()
-                        .texOffs(0, 84).addBox(-2.0F, -2.0F, 0.0F, 4.0F, 4.0F, 7.0F),
+        root.addOrReplaceChild(
+                "front_right",
+                CubeListBuilder.create()
+                        .texOffs(82, 23).addBox(-1.2F, -1.0F, -1.2F, 2.4F, 4.2F, 2.4F)
+                        .texOffs(87, 23).addBox(-1.6F, 3.2F, -2.4F, 3.2F, 1.6F, 4.0F),
+                PartPose.offset(-2.7F, 16.5F, -4.7F));
+        root.addOrReplaceChild(
+                "front_left",
+                CubeListBuilder.create()
+                        .texOffs(96, 23).addBox(-1.2F, -1.0F, -1.2F, 2.4F, 4.2F, 2.4F)
+                        .texOffs(101, 23).addBox(-1.6F, 3.2F, -2.4F, 3.2F, 1.6F, 4.0F),
+                PartPose.offset(2.7F, 16.5F, -4.7F));
+        root.addOrReplaceChild(
+                "back_right",
+                CubeListBuilder.create()
+                        .texOffs(110, 23).addBox(-1.2F, -1.0F, -1.2F, 2.4F, 4.2F, 2.4F)
+                        .texOffs(115, 23).addBox(-1.6F, 3.2F, -2.4F, 3.2F, 1.6F, 4.0F),
+                PartPose.offset(-2.7F, 16.5F, 4.7F));
+        root.addOrReplaceChild(
+                "back_left",
+                CubeListBuilder.create()
+                        .texOffs(0, 38).addBox(-1.2F, -1.0F, -1.2F, 2.4F, 4.2F, 2.4F)
+                        .texOffs(5, 38).addBox(-1.6F, 3.2F, -2.4F, 3.2F, 1.6F, 4.0F),
+                PartPose.offset(2.7F, 16.5F, 4.7F));
+        PartDefinition tail = root.addOrReplaceChild(
+                "tail",
+                CubeListBuilder.create()
+                        .texOffs(14, 38).addBox(-2.0F, -2.0F, 0.0F, 4.0F, 4.0F, 7.0F),
                 PartPose.offsetAndRotation(0.0F, 13.5F, 6.3F, 0.45F, 0.0F, 0.0F));
-        PartDefinition tailMid = tail.addOrReplaceChild("tail_mid", CubeListBuilder.create()
-                        .texOffs(28, 84).addBox(-2.5F, -2.5F, 0.0F, 5.0F, 5.0F, 7.0F),
+        PartDefinition tail_tail_mid = tail.addOrReplaceChild(
+                "tail_mid",
+                CubeListBuilder.create()
+                        .texOffs(29, 38).addBox(-2.6F, -2.6F, 0.0F, 5.2F, 5.2F, 7.0F),
                 PartPose.offsetAndRotation(0.0F, 0.0F, 6.2F, 0.08F, 0.0F, 0.0F));
-        tailMid.addOrReplaceChild("tail_tip", CubeListBuilder.create()
-                        .texOffs(60, 84).addBox(-3.0F, -3.0F, 0.0F, 6.0F, 6.0F, 7.0F),
+        tail_tail_mid.addOrReplaceChild(
+                "tail_tip",
+                CubeListBuilder.create()
+                        .texOffs(44, 38).addBox(-3.0F, -3.0F, 0.0F, 6.0F, 6.0F, 7.0F),
                 PartPose.offsetAndRotation(0.0F, 0.0F, 6.2F, 0.12F, 0.0F, 0.0F));
 
         return LayerDefinition.create(mesh, 128, 128);
-    }
-
-    private static void leg(PartDefinition root, String name, int index, float x, float z) {
-        int legU = index * 12;
-        int pawU = index * 16;
-        PartDefinition leg = root.addOrReplaceChild(name, CubeListBuilder.create().texOffs(legU, 52)
-                        .addBox(-1.0F, 0.0F, -1.0F, 2.0F, 6.0F, 2.0F),
-                PartPose.offset(x, 16.5F, z));
-        leg.addOrReplaceChild("paw", CubeListBuilder.create().texOffs(pawU, 68)
-                        .addBox(-1.5F, -0.5F, -2.5F, 3.0F, 2.0F, 4.0F),
-                PartPose.offset(0.0F, 5.5F, -0.2F));
     }
 
     @Override
@@ -144,7 +179,6 @@ public final class WindWolfModel extends EntityModel<SpiritBeastRenderState> {
         this.backRightLeg.xRot = this.frontLeftLeg.xRot;
         this.backLeftLeg.xRot = this.frontRightLeg.xRot;
 
-        // Leaping tucks the forelegs and pushes the hind legs back.
         if (leap > 0.05F) {
             this.frontRightLeg.xRot -= leap * 0.55F;
             this.frontLeftLeg.xRot -= leap * 0.55F;
@@ -164,11 +198,11 @@ public final class WindWolfModel extends EntityModel<SpiritBeastRenderState> {
         this.tailTip.xRot = 0.12F + Mth.sin(age * 0.08F + 0.9F) * 0.05F;
 
         float attack = Mth.sin(state.attackProgress * Mth.PI);
-        this.body.xRot = (state.aggressive ? -0.06F : 0.0F) + state.breathPhase * 0.012F
-                + leap * -0.12F;
+        this.body.xRot = (state.aggressive ? -0.06F : 0.0F) + state.breathPhase * 0.012F - leap * 0.12F;
         this.head.xRot -= attack * 0.62F;
         this.frontRightLeg.xRot -= attack * 0.38F;
         this.frontLeftLeg.xRot -= attack * 0.38F;
+        this.snout.xRot = attack * 0.18F;
 
         if (state.sitting) {
             this.body.xRot = 0.16F;
@@ -179,7 +213,7 @@ public final class WindWolfModel extends EntityModel<SpiritBeastRenderState> {
             this.tail.xRot = 0.95F;
         }
 
-        if (state.isInWater) {
+        if (state.inWater) {
             float paddle = Mth.sin(age * 0.45F);
             this.frontRightLeg.xRot = paddle * 0.55F;
             this.frontLeftLeg.xRot = -paddle * 0.55F;
@@ -188,7 +222,6 @@ public final class WindWolfModel extends EntityModel<SpiritBeastRenderState> {
             this.body.xRot = 0.06F;
         }
 
-        // Ears flatten when hurt or aggressive, perk when alert and still.
         float earTilt = hurt * 0.55F + (state.aggressive ? 0.18F : 0.0F);
         this.ears[0].xRot = -0.1F - earTilt * 0.6F + Mth.sin(age * 0.11F) * 0.02F;
         this.ears[1].xRot = this.ears[0].xRot;

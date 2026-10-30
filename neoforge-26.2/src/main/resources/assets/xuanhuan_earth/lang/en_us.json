@@ -34,7 +34,8 @@
   "tooltip.xuanhuan_earth.spirit_stone.matrix": "Standard matrix: SiO2 80% · KAlSi3O8 15% · KAl2(AlSi3O10)(OH)2 4% · Fe2O3 1%",
   "tooltip.xuanhuan_earth.spirit_stone.charge": "Field charge: %s / %s AEU (%s)",
   "tooltip.xuanhuan_earth.spirit_stone.use": "Capture efficiency 80%, release efficiency 90%; 10 AEU equals 1 mana. Qi is not a chemical element and charging does not change matrix mass.",
-  "message.xuanhuan_earth.spirit_stone.charged": "Spirit stone charged: field draw %s, stored +%s AEU (%s/%s); field loss %s. Local qi: %s.",  "message.xuanhuan_earth.spirit_stone.released": "Spirit stone discharged: spent %s AEU, restored %s mana (remaining charge %s/%s).",
+  "message.xuanhuan_earth.spirit_stone.charged": "Spirit stone charged: field draw %s, stored +%s AEU (%s/%s); field loss %s. Local qi: %s.",
+  "message.xuanhuan_earth.spirit_stone.released": "Spirit stone discharged: spent %s AEU, restored %s mana (remaining charge %s/%s).",
   "message.xuanhuan_earth.spirit_stone.no_field": "No extractable qi flux here; the stone is full or this chunk is too thin.",
   "message.xuanhuan_earth.spirit_stone.empty": "The spirit stone has too little charge to release mana.",
   "message.xuanhuan_earth.spirit_stone.mana_full": "Mana is already full; no charge was released.",
@@ -42,7 +43,6 @@
   "spirit_stone.xuanhuan_earth.grade.low": "low",
   "spirit_stone.xuanhuan_earth.grade.steady": "steady",
   "spirit_stone.xuanhuan_earth.grade.full": "full",
-
   "item.xuanhuan_earth.spirit_iron_blank": "Spirit Iron Blank",
   "item.xuanhuan_earth.qi_recovery_pill": "Qi Recovery Pill",
   "tooltip.xuanhuan_earth.block": "Xuanhuan environment block: foundation for qi, alchemy, talismans and arrays.",

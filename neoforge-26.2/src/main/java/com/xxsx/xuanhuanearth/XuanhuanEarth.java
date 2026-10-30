@@ -213,6 +213,12 @@ public class XuanhuanEarth {
     public static final DeferredHolder<Feature<?>, XuanhuanSettlementFeature> SECT_OUTPOST_FEATURE =
             FEATURES.register("sect_frontier_outpost", () -> new XuanhuanSettlementFeature(
                     NoneFeatureConfiguration.CODEC, XuanhuanSettlementFeature.Type.SECT_OUTPOST));
+    public static final DeferredHolder<Feature<?>, XuanhuanSettlementFeature> MOUNTAIN_SHRINE_FEATURE =
+            FEATURES.register("mountain_spirit_shrine", () -> new XuanhuanSettlementFeature(
+                    NoneFeatureConfiguration.CODEC, XuanhuanSettlementFeature.Type.MOUNTAIN_SPIRIT_SHRINE));
+    public static final DeferredHolder<Feature<?>, XuanhuanSettlementFeature> KEEPER_CAMP_FEATURE =
+            FEATURES.register("spirit_beast_keeper_camp", () -> new XuanhuanSettlementFeature(
+                    NoneFeatureConfiguration.CODEC, XuanhuanSettlementFeature.Type.SPIRIT_BEAST_KEEPER_CAMP));
 
     public XuanhuanEarth(IEventBus modBus) {
         registerLegacyAliases();
